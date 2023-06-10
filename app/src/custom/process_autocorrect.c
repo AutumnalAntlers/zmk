@@ -12,13 +12,14 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <dt-bindings/zmk/keys.h>
 
-#include <zmk/custom/process_autocorrect.h>
+// #include <zmk/custom/process_autocorrect.h>
+#include "process_autocorrect.h"
 
 #if __has_include("autocorrect_data.h")
-#    include <zmk/custom/autocorrect_data.h>
+#    include "autocorrect_data.h"
 #else
 #    pragma message "Autocorrect is using the default library."
-#    include <zmk/custom/autocorrect_data_default.h>
+#    include "autocorrect_data_default.h"
 #endif
 
 #include <string.h>
