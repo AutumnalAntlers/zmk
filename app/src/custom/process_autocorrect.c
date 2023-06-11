@@ -111,11 +111,12 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       ++state;
     }
 
-    // Stop if `state` becomes an invalid index. This should not normally
-    // happen, it is a safeguard in case of a bug, data corruption, etc.
-    if (state >= DICTIONARY_SIZE) {
-      return true;
-    }
+    // XXX
+    // // Stop if `state` becomes an invalid index. This should not normally
+    // // happen, it is a safeguard in case of a bug, data corruption, etc.
+    // if (state >= DICTIONARY_SIZE) {
+    //   return true;
+    // }
 
     code = autocorrect_data[state];
 
