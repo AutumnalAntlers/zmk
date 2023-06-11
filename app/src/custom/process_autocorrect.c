@@ -139,13 +139,13 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     // }
 
     code = autocorrect_data[state];
-    LOG_DBG("[ANT-20] code: %d (%d-%d)", code, A, Z)
+    LOG_DBG("[ANT-20] code: %d (%d-%d)", code, A, Z);
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
-      LOG_DBG("[ANT-21] backspaces: %d", backspaces)
+      LOG_DBG("[ANT-21] backspaces: %d", backspaces);
       for (int i = 0; i < backspaces; ++i) {
-        LOG_DBG("[ANT-22] i: %d", i)
+        LOG_DBG("[ANT-22] i: %d", i);
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
@@ -159,19 +159,19 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       // send_string_P((char const *)(autocorrect_data + state + 1));
 
       if (keycode == SPACE) {
-        LOG_DBG("[ANT-23]")
+        LOG_DBG("[ANT-23]");
         typo_buffer[0]  = SPACE;
         typo_buffer_size = 1;
         return true;
       } else {
-        LOG_DBG("[ANT-24]")
+        LOG_DBG("[ANT-24]");
         typo_buffer_size = 0;
         return false;
       }
     }
   }
   return true;
-  LOG_DBG("[ANT-25]")
+  LOG_DBG("[ANT-25]");
 }
 
 ZMK_LISTENER(autocorrect, autocorrect_event_listener);
