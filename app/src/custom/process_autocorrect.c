@@ -43,7 +43,7 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
   return 0;
 }
 
-bool process_autocorrect(int_t keycode, zmk_event_t *record) {
+bool process_autocorrect(int_t keycode, const zmk_event_t *record) {
   switch (keycode) {
     case A ... Z:
         // process normally
@@ -91,21 +91,21 @@ bool process_autocorrect(int_t keycode, zmk_event_t *record) {
 
   // Check for typo in buffer using a trie stored in `autocorrect_data`.
   int_t state = 0;
-  int_t  code  = pgm_read_byte(autocorrect_data + state);
+  int_t  code  = autocorrect_data[state];
   for (int16_t i = typo_buffer_size - 1; i >= 0; --i) {
     int_t const key_i = typo_buffer[i];
 
     if (code & 64) { // Check for match in node with multiple children.
       code &= 63;
-      for (; code != key_i; code = pgm_read_byte(autocorrect_data + (state += 3))) {
+      for (; code != key_i; code = autocorrect_data[(state += 3)]) {
         if (!code) return true;
       }
       // Follow link to child node.
-      state = (pgm_read_byte(autocorrect_data + state + 1) | pgm_read_byte(autocorrect_data + state + 2) << 8);
+      state = (autocorrect_data[(state + 1)] | autocorrect_data[(state + 2)] << 8);
       // Check for match in node with single child.
     } else if (code != key_i) {
       return true;
-    } else if (!(code = pgm_read_byte(autocorrect_data + (++state)))) {
+    } else if (!(code = autocorrect_data[(++state)])) {
       ++state;
     }
 
@@ -115,17 +115,17 @@ bool process_autocorrect(int_t keycode, zmk_event_t *record) {
       return true;
     }
 
-    code = pgm_read_byte(autocorrect_data + state);
+    code = autocorrect_data[state];
 
     if (code & 128) { // A typo was found! Apply autocorrect.
       const int_t backspaces = (code & 63); // + !record->event.pressed;
       for (int_t i = 0; i < backspaces; ++i) {
-        ZMK_RAISE_EVENT(new_zmk_keycode_state_changed((struct zmk_keycode_state_changed){.usage_page = record->usage_page,
-                                                                                         .keycode = BSPC,
-                                                                                         .implicit_modifiers = 0,
-                                                                                         .explicit_modifiers = 0,
-                                                                                         .state = false,
-                                                                                         .timestamp = k_uptime_get()}))
+        zmk_event_manager_raise(new_zmk_keycode_state_changed((struct zmk_keycode_state_changed){.usage_page = record->usage_page,
+                                                                                                 .keycode = BSPC,
+                                                                                                 .implicit_modifiers = 0,
+                                                                                                 .explicit_modifiers = 0,
+                                                                                                 .state = false,
+                                                                                                 .timestamp = k_uptime_get()}))
       }
       // send_string_P((char const *)(autocorrect_data + state + 1));
 
