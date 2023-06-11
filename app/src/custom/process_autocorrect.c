@@ -24,8 +24,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <string.h>
 
-static uint8_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
-static uint8_t typo_buffer_size                    = 1;
+static uint16_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
+static uint16_t typo_buffer_size                    = 1;
 
 int bufferLength = 0;
 int readIndex = 0;
@@ -91,9 +91,9 @@ bool process_autocorrect(uint16_t keycode, zmk_keycode_state_changed *record) {
 
   // Check for typo in buffer using a trie stored in `autocorrect_data`.
   uint16_t state = 0;
-  uint8_t  code  = pgm_read_byte(autocorrect_data + state);
-  for (int8_t i = typo_buffer_size - 1; i >= 0; --i) {
-    uint8_t const key_i = typo_buffer[i];
+  uint16_t  code  = pgm_read_byte(autocorrect_data + state);
+  for (int16_t i = typo_buffer_size - 1; i >= 0; --i) {
+    uint16_t const key_i = typo_buffer[i];
 
     if (code & 64) { // Check for match in node with multiple children.
       code &= 63;
@@ -118,8 +118,8 @@ bool process_autocorrect(uint16_t keycode, zmk_keycode_state_changed *record) {
     code = pgm_read_byte(autocorrect_data + state);
 
     if (code & 128) { // A typo was found! Apply autocorrect.
-      const uint8_t backspaces = (code & 63); // + !record->event.pressed;
-      for (uint8_t i = 0; i < backspaces; ++i) {
+      const uint16_t backspaces = (code & 63); // + !record->event.pressed;
+      for (uint16_t i = 0; i < backspaces; ++i) {
         ZMK_RAISE_EVENT(new_zmk_keycode_state_changed((struct zmk_keycode_state_changed){.usage_page = ev->usage_page record,
                                                                                          .keycode = BSPC,
                                                                                          .implicit_modifiers = 0,
