@@ -24,7 +24,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <string.h>
 
-static uint8_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPC};
+static uint8_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint8_t typo_buffer_size                    = 1;
 
 int bufferLength = 0;
@@ -52,13 +52,13 @@ bool process_autocorrect(uint16_t keycode, zmk_event_t *record) {
     case TAB ... SEMICOLON:
     case GRAVE ... SLASH:
       // Set a word boundary if space, period, digit, etc. is pressed.
-      keycode = SPC;
+      keycode = SPACE;
       break;
     case ENTER:
       // Behave more conservatively for the enter key. Reset, so that enter
       // can't be used on a word ending.
       typo_buffer_size = 0;
-      keycode          = SPC;
+      keycode          = SPACE;
       break;
     case BSPC:
       // Remove last character from the buffer.
@@ -68,7 +68,7 @@ bool process_autocorrect(uint16_t keycode, zmk_event_t *record) {
       return true;
     case DQT:
       // Treat " as a word boundary.
-      keycode = SPC;
+      keycode = SPACE;
       break;
     default:
       // Clear state if some other non-alpha key is pressed.
@@ -129,8 +129,8 @@ bool process_autocorrect(uint16_t keycode, zmk_event_t *record) {
       }
       // send_string_P((char const *)(autocorrect_data + state + 1));
 
-      if (keycode == SPC) {
-        typo_buffer[0]  = SPC;
+      if (keycode == SPACE) {
+        typo_buffer[0]  = SPACE;
         typo_buffer_size = 1;
         return true;
       } else {
