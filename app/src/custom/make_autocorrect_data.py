@@ -68,6 +68,7 @@ except ImportError:
 KC_A = 4
 KC_SPC = 0x2c
 KC_QUOT = 0x34
+HIGH_BIT_MASK= 1073741823 # (2**32 >> 2) - 1
 
 TYPO_CHARS = dict(
   [
@@ -283,16 +284,24 @@ def write_generated_code(autocorrects: List[Tuple[str, str]],
   max_typo = max(autocorrects, key=typo_len)[0]
 
   def decode_keycode(d: int) -> str:
-    if d == 0x2c:
+    if d == 0:
+      return "0"
+    elif d == 0x2c:
       return "SPACE"
     elif d == 0x43:
       return "QUOT"
-    elif ord('0') < d < ord('9'):
-      return "N" + str(chr(d))
-    elif ord('a') < d < ord('z'):
-      return str(chr(d - (ord('a') - ord('A'))))
+    elif ord('A') <= d + 61 <= ord('Z'):
+      return str(chr(d + 61))
     else:
-      return str(d)
+      raise ValueError
+
+  def decode(d:int) -> str:
+    if (d & 64):
+      return "(" + decode_keycode((d & 63) - 29) + " | " + str(HIGH_BIT_MASK + 1) + ")"
+    elif (d & 128):
+      return "(" + str(d & 63) + " | " + str(2 * (HIGH_BIT_MASK + 1)) + ")"
+    else:
+      return decode_keycode(d)
 
   generated_code = ''.join([
     '// Generated code.\n\n',

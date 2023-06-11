@@ -24,6 +24,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <string.h>
 
+#define HIGH_BIT_MASK 1073741823 // (2**32 >> 2) - 1
+
 static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
@@ -95,8 +97,8 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
     uint32_t const key_i = typo_buffer[i];
 
-    if (code & 64) { // Check for match in node with multiple children.
-      code &= 63;
+    if (code & (HIGH_BIT_MASK + 1)) { // Check for match in node with multiple children.
+      code &= HIGH_BIT_MASK;
       for (; code != key_i; code = autocorrect_data[(state += 3)]) {
         if (!code) return true;
       }
@@ -117,8 +119,8 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
     code = autocorrect_data[state];
 
-    if (code & 128) { // A typo was found! Apply autocorrect.
-      const uint32_t backspaces = (code & 63); // + !record->event.pressed;
+    if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
+      const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
       for (int i = 0; i < backspaces; ++i) {
         zmk_event_manager_raise(new_zmk_keycode_state_changed((struct zmk_keycode_state_changed){.usage_page = record->usage_page,
                                                                                                  .keycode = BSPC,
