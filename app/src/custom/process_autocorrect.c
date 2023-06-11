@@ -15,8 +15,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 // #include <zmk/custom/process_autocorrect.h>
 #include "process_autocorrect.h"
 
-#if __has_include("autocorrection_data.h")
-#    include "autocorrection_data.h"
+#if __has_include("autocorrect_data.h")
+#    include "autocorrect_data.h"
 #else
 #    pragma message "Autocorrect is using the default library."
 #    include "autocorrect_data_default.h"

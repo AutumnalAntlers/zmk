@@ -13,22 +13,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Python program to make autocorrection_data.h.
+"""Python program to make autocorrect_data.h.
 
-This program reads "autocorrection_dict.txt" from the current directory and
-generates a C source file "autocorrection_data.h" with a serialized trie
+This program reads "autocorrect_dict.txt" from the current directory and
+generates a C source file "autocorrect_data.h" with a serialized trie
 embedded as an array. Run this program without arguments like
 
-$ python3 make_autocorrection_data.py
+$ python3 make_autocorrect_data.py
 
 Or specify a dict file as the first argument like
 
-$ python3 make_autocorrection_data.py mykeymap/dict.txt
+$ python3 make_autocorrect_data.py mykeymap/dict.txt
 
-The output is written to "autocorrection_data.h" in the same directory as the
+The output is written to "autocorrect_data.h" in the same directory as the
 dictionary. Or optionally specify the output .h file as well like
 
-$ python3 make_autocorrection_data.py dict.txt somewhere/out.h
+$ python3 make_autocorrect_data.py dict.txt somewhere/out.h
 
 Each line of the dict file defines one typo and its correction with the syntax
 "typo -> correction". Blank lines or lines starting with '#' are ignored.
@@ -41,10 +41,10 @@ Example:
     ouput      -> output
     widht      -> width
 
-See autocorrection_dict_extra.txt for a larger example.
+See autocorrect_dict_extra.txt for a larger example.
 
 For full documentation, see
-https://getreuer.info/posts/keyboards/autocorrection
+https://getreuer.info/posts/keyboards/autocorrect
 """
 
 import os.path
@@ -80,7 +80,7 @@ TYPO_CHARS = dict(
 
 
 def parse_file(file_name: str) -> List[Tuple[str, str]]:
-  """Parses autocorrections dictionary file.
+  """Parses autocorrects dictionary file.
 
   Each line of the file defines one typo and its correction with the syntax
   "typo -> correction". Blank lines or lines starting with '#' are ignored. The
@@ -89,12 +89,12 @@ def parse_file(file_name: str) -> List[Tuple[str, str]]:
   on CORRECT_WORDS.
 
   Args:
-    file_name: String, path of the autocorrections dictionary.
+    file_name: String, path of the autocorrects dictionary.
   Returns:
     List of (typo, correction) tuples.
   """
 
-  autocorrections = []
+  autocorrects = []
   typos = set()
   for line_number, typo, correction in parse_file_lines(file_name):
     if typo in typos:
@@ -118,22 +118,22 @@ def parse_file(file_name: str) -> List[Tuple[str, str]]:
 
     check_typo_against_dictionary(line_number, typo)
 
-    autocorrections.append((typo, correction))
+    autocorrects.append((typo, correction))
     typos.add(typo)
 
-  return autocorrections
+  return autocorrects
 
 
-def make_trie(autocorrections: List[Tuple[str, str]]) -> Dict[str, Any]:
+def make_trie(autocorrects: List[Tuple[str, str]]) -> Dict[str, Any]:
   """Makes a trie from the the typos, writing in reverse.
 
   Args:
-    autocorrections: List of (typo, correction) tuples.
+    autocorrects: List of (typo, correction) tuples.
   Returns:
     Dict of dict, representing the trie.
   """
   trie = {}
-  for typo, correction in autocorrections:
+  for typo, correction in autocorrects:
     node = trie
     for letter in typo[::-1]:
       node = node.setdefault(letter, {})
@@ -187,12 +187,12 @@ def check_typo_against_dictionary(line_number: int, typo: str) -> None:
               f'on correctly spelled word "{word}".')
 
 
-def serialize_trie(autocorrections: List[Tuple[str, str]],
+def serialize_trie(autocorrects: List[Tuple[str, str]],
                    trie: Dict[str, Any]) -> List[int]:
   """Serializes trie and correction data in a form readable by the C code.
 
   Args:
-    autocorrections: List of (typo, correction) tuples.
+    autocorrects: List of (typo, correction) tuples.
     trie: Dict of dicts.
   Returns:
     List of ints in the range 0-255.
@@ -205,7 +205,7 @@ def serialize_trie(autocorrections: List[Tuple[str, str]],
       typo, correction = trie_node['LEAF']
       word_boundary_ending = typo[-1] == ':'
       typo = typo.strip(':')
-      i = 0  # Make the autocorrection data for this entry and serialize it.
+      i = 0  # Make the autocorrect data for this entry and serialize it.
       while i < min(len(typo), len(correction)) and typo[i] == correction[i]:
         i += 1
       backspaces = len(typo) - i - 1 + word_boundary_ending
@@ -258,19 +258,19 @@ def encode_link(link: Dict[str, Any]) -> List[int]:
   """Encodes a node link as two bytes."""
   byte_offset = link['byte_offset']
   if not (0 <= byte_offset <= 0xffff):
-    print('Error: The autocorrection table is too large, a node link exceeds '
-          '64KB limit. Try reducing the autocorrection dict to fewer entries.')
+    print('Error: The autocorrect table is too large, a node link exceeds '
+          '64KB limit. Try reducing the autocorrect dict to fewer entries.')
     sys.exit(1)
   return [byte_offset & 255, byte_offset >> 8]
 
 
-def write_generated_code(autocorrections: List[Tuple[str, str]],
+def write_generated_code(autocorrects: List[Tuple[str, str]],
                          data: List[int],
                          file_name: str) -> None:
-  """Writes autocorrection data as generated C code to `file_name`.
+  """Writes autocorrect data as generated C code to `file_name`.
 
   Args:
-    autocorrections: List of (typo, correction) tuples.
+    autocorrects: List of (typo, correction) tuples.
     data: List of ints in 0-255, the serialized trie.
     file_name: String, path of the output C file.
   """
@@ -279,8 +279,8 @@ def write_generated_code(autocorrections: List[Tuple[str, str]],
   def typo_len(e: Tuple[str, str]) -> int:
     return len(e[0])
 
-  min_typo = min(autocorrections, key=typo_len)[0]
-  max_typo = max(autocorrections, key=typo_len)[0]
+  min_typo = min(autocorrects, key=typo_len)[0]
+  max_typo = max(autocorrects, key=typo_len)[0]
 
   def decode(d: int) -> str:
     if d == 0x2c:
@@ -296,13 +296,13 @@ def write_generated_code(autocorrections: List[Tuple[str, str]],
 
   generated_code = ''.join([
     '// Generated code.\n\n',
-    f'// Autocorrection dictionary ({len(autocorrections)} entries):\n',
+    f'// Autocorrect dictionary ({len(autocorrects)} entries):\n',
     ''.join(sorted(f'//   {typo:<{len(max_typo)}} -> {correction}\n'
-                   for typo, correction in autocorrections)),
+                   for typo, correction in autocorrects)),
     f'\n#include <dt-bindings/zmk/keys.h>\n',
-    f'\n#define AUTOCORRECTION_MIN_LENGTH {len(min_typo)}  // "{min_typo}"\n',
-    f'#define AUTOCORRECTION_MAX_LENGTH {len(max_typo)}  // "{max_typo}"\n\n',
-    textwrap.fill('static const int16_t autocorrection_data[%d] = {%s};' % (
+    f'\n#define AUTOCORRECT_MIN_LENGTH {len(min_typo)}  // "{min_typo}"\n',
+    f'#define AUTOCORRECT_MAX_LENGTH {len(max_typo)}  // "{max_typo}"\n\n',
+    textwrap.fill('static const int16_t autocorrect_data[%d] = {%s};' % (
       len(data), ', '.join(map(decode, data))), width=80, subsequent_indent='  '),
     '\n\n'])
 
@@ -311,19 +311,19 @@ def write_generated_code(autocorrections: List[Tuple[str, str]],
 
 
 def get_default_h_file(dict_file: str) -> str:
-  return os.path.join(os.path.dirname(dict_file), 'autocorrection_data.h')
+  return os.path.join(os.path.dirname(dict_file), 'autocorrect_data.h')
 
 
 def main(argv):
-  dict_file = argv[1] if len(argv) > 1 else 'autocorrection_dict.txt'
+  dict_file = argv[1] if len(argv) > 1 else 'autocorrect_dict.txt'
   h_file = argv[2] if len(argv) > 2 else get_default_h_file(dict_file)
 
-  autocorrections = parse_file(dict_file)
-  trie = make_trie(autocorrections)
-  data = serialize_trie(autocorrections, trie)
-  print(f'Processed %d autocorrection entries to table with %d bytes.'
-        % (len(autocorrections), len(data)))
-  write_generated_code(autocorrections, data, h_file)
+  autocorrects = parse_file(dict_file)
+  trie = make_trie(autocorrects)
+  data = serialize_trie(autocorrects, trie)
+  print(f'Processed %d autocorrect entries to table with %d bytes.'
+        % (len(autocorrects), len(data)))
+  write_generated_code(autocorrects, data, h_file)
 
 
 if __name__ == '__main__':
