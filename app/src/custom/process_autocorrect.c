@@ -24,7 +24,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <string.h>
 
-static uint8_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {KC_SPC};
+static uint8_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPC};
 static uint8_t typo_buffer_size                    = 1;
 
 int bufferLength = 0;
@@ -68,7 +68,7 @@ bool process_autocorrect(uint16_t keycode, zmk_event_t *record) {
       return true;
     case DQT:
       // Treat " as a word boundary.
-      keycode = KC_SPC;
+      keycode = SPC;
       break;
     default:
       // Clear state if some other non-alpha key is pressed.
