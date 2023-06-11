@@ -124,12 +124,15 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
       for (int i = 0; i < backspaces; ++i) {
-        zmk_event_manager_raise(new_zmk_keycode_state_changed((struct zmk_keycode_state_changed){.usage_page = ev->usage_page,
-                                                                                                 .keycode = BSPC,
-                                                                                                 .implicit_modifiers = 0,
-                                                                                                 .explicit_modifiers = 0,
-                                                                                                 .state = false,
-                                                                                                 .timestamp = k_uptime_get()}))
+      ZMK_EVENT_RAISE(
+        new_zmk_keycode_state_changed(
+          (struct zmk_keycode_state_changed){
+            .usage_page = ev->usage_page,
+            .keycode = BSPC,
+            .implicit_modifiers = 0,
+            .explicit_modifiers = 0,
+            .state = false,
+            .timestamp = k_uptime_get()}))
       }
       // send_string_P((char const *)(autocorrect_data + state + 1));
 
