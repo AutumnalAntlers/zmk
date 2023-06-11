@@ -282,7 +282,7 @@ def write_generated_code(autocorrects: List[Tuple[str, str]],
   min_typo = min(autocorrects, key=typo_len)[0]
   max_typo = max(autocorrects, key=typo_len)[0]
 
-  def decode(d: int) -> str:
+  def decode_keycode(d: int) -> str:
     if d == 0x2c:
       return "SPACE"
     elif d == 0x43:

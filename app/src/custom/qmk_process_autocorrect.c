@@ -274,11 +274,12 @@ bool process_autocorrect(uint16_t keycode, keyrecord_t *record) {
       ++state;
     }
 
-    // Stop if `state` becomes an invalid index. This should not normally
-    // happen, it is a safeguard in case of a bug, data corruption, etc.
-    if (state >= DICTIONARY_SIZE) {
-      return true;
-    }
+    // XXX
+    // // Stop if `state` becomes an invalid index. This should not normally
+    // // happen, it is a safeguard in case of a bug, data corruption, etc.
+    // if (state >= DICTIONARY_SIZE) {
+    //   return true;
+    // }
 
     code = pgm_read_byte(autocorrect_data + state);
 
