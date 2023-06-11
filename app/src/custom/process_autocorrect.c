@@ -36,7 +36,7 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
   if (ev) {
     // count only key up events
     if (!ev->state) {
-      process_autocorrect(ev->keycode, ev)
+      process_autocorrect(ev->keycode, ev);
       LOG_DBG("key_pressed_count %d keycode %d", key_pressed_count, ev->keycode);
     }
   }
