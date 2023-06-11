@@ -36,14 +36,14 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
   if (ev) {
     // count only key up events
     if (!ev->state) {
-      process_autocorrect(ev->keycode, ev);
+      process_autocorrect(ev->keycode, eh);
       LOG_DBG("[ANT] keycode: %d", ev->keycode);
     }
   }
   return 0;
 }
 
-bool process_autocorrect(uint16_t keycode, zmk_keycode_state_changed *record) {
+bool process_autocorrect(uint16_t keycode, zmk_event_t *record) {
   switch (keycode) {
     case A ... Z:
         // process normally
@@ -120,7 +120,7 @@ bool process_autocorrect(uint16_t keycode, zmk_keycode_state_changed *record) {
     if (code & 128) { // A typo was found! Apply autocorrect.
       const uint16_t backspaces = (code & 63); // + !record->event.pressed;
       for (uint16_t i = 0; i < backspaces; ++i) {
-        ZMK_RAISE_EVENT(new_zmk_keycode_state_changed((struct zmk_keycode_state_changed){.usage_page = ev->usage_page record,
+        ZMK_RAISE_EVENT(new_zmk_keycode_state_changed((struct zmk_keycode_state_changed){.usage_page = record->usage_page,
                                                                                          .keycode = BSPC,
                                                                                          .implicit_modifiers = 0,
                                                                                          .explicit_modifiers = 0,
