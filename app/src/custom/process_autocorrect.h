@@ -7,9 +7,9 @@
 
 #include <zmk/event_manager.h>
 
-bool process_autocorrect(uint16_t keycode, zmk_event_t *record);
+bool process_autocorrect(int32_t keycode, zmk_event_t *record);
 // bool process_autocorrect_user(uint16_t *keycode, zmk_event_t *record, uint8_t *typo_buffer_size, uint8_t *mods);
-bool apply_autocorrect(uint8_t backspaces, const char *str);
+bool apply_autocorrect(int32_t backspaces, const char *str);
 
 // bool autocorrect_is_enabled(void);
 // void autocorrect_enable(void);

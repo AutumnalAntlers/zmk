@@ -302,7 +302,7 @@ def write_generated_code(autocorrects: List[Tuple[str, str]],
     f'\n#include <dt-bindings/zmk/keys.h>\n',
     f'\n#define AUTOCORRECT_MIN_LENGTH {len(min_typo)}  // "{min_typo}"\n',
     f'#define AUTOCORRECT_MAX_LENGTH {len(max_typo)}  // "{max_typo}"\n\n',
-    textwrap.fill('static const int16_t autocorrect_data[%d] = {%s};' % (
+    textwrap.fill('static const int32_t autocorrect_data[%d] = {%s};' % (
       len(data), ', '.join(map(decode, data))), width=80, subsequent_indent='  '),
     '\n\n'])
 

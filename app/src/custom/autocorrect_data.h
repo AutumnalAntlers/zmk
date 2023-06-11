@@ -1,6 +1,6 @@
 // Generated code.
 
-// Autocorrection dictionary (70 entries):
+// Autocorrect dictionary (70 entries):
 //   :guage     -> gauge
 //   :the:the:  -> the
 //   :thier     -> their
@@ -74,8 +74,8 @@
 
 #include <dt-bindings/zmk/keys.h>
 
-#define AUTOCORRECTION_MIN_LENGTH 5  // ":ture"
-#define AUTOCORRECTION_MAX_LENGTH 10  // "accomodate"
+#define AUTOCORRECT_MIN_LENGTH 5  // ":ture"
+#define AUTOCORRECT_MAX_LENGTH 10  // "accomodate"
 
 static const int16_t autocorrect_data[1104] = {L, 43, 0, 6, 71, 0, 7, 81, 0, 8,
   199, 0, 9, 240, 1, 10, 250, 1, 11, 26, 2, 17, N5, 2, 18, 190, 2, 19, 202, 2,
