@@ -24,7 +24,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <string.h>
 
-const uint32_t HIGH_BIT_MASK = 1073741823 // (2**32 >> 2) - 1
+const uint32_t HIGH_BIT_MASK = 1073741823; // (2**32 >> 2) - 1
 
 static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
