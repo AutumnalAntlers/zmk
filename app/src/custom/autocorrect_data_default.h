@@ -72,6 +72,7 @@
 //   udpate     -> update
 //   widht      -> width
 
+#include <avr/pgmspace.h>
 #define AUTOCORRECT_MIN_LENGTH 5  // ":ture"
 #define AUTOCORRECT_MAX_LENGTH 10 // "accomodate"
 
