@@ -24,7 +24,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include <string.h>
 
-#define HIGH_BIT_MASK 1073741823 // (2**32 >> 2) - 1
+const uint32_t HIGH_BIT_MASK = 1073741823 // (2**32 >> 2) - 1
 
 static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
@@ -46,6 +46,7 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
 }
 
 bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
+  const struct zmk_keycode_state_changed *ev = as_zmk_keycode_state_changed(record);
   switch (keycode) {
     case A ... Z:
         // process normally
@@ -123,7 +124,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
       for (int i = 0; i < backspaces; ++i) {
-        zmk_event_manager_raise(new_zmk_keycode_state_changed((struct zmk_keycode_state_changed){.usage_page = record->usage_page,
+        zmk_event_manager_raise(new_zmk_keycode_state_changed((struct zmk_keycode_state_changed){.usage_page = ev->usage_page,
                                                                                                  .keycode = BSPC,
                                                                                                  .implicit_modifiers = 0,
                                                                                                  .explicit_modifiers = 0,
