@@ -37,13 +37,13 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
     // count only key up events
     if (!ev->state) {
       process_autocorrect(ev->keycode, ev);
-      LOG_DBG("key_pressed_count %d keycode %d", key_pressed_count, ev->keycode);
+      LOG_DBG("[ANT] keycode: %d", ev->keycode);
     }
   }
   return 0;
 }
 
-bool process_autocorrect(uint16_t keycode, zmk_event_t *record) {
+bool process_autocorrect(uint16_t keycode, zmk_keycode_state_changed *record) {
   switch (keycode) {
     case A ... Z:
         // process normally
