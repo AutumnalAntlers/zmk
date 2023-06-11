@@ -49,7 +49,11 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   const struct zmk_keycode_state_changed *ev = as_zmk_keycode_state_changed(record);
   switch (keycode) {
     case A ... Z:
-      LOG_DBG("[ANT-02]");
+      LOG_DBG("[ANT-02a]");
+      // process normally
+      break;
+    case 4 ... 29:
+      LOG_DBG("[ANT-02b]");
       // process normally
       break;
     case N1 ... N0:
