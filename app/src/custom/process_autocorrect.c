@@ -215,7 +215,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       }
 
       // send_string_P((char const *)(autocorrect_data + state + 1));
-      for (int i = 0; i < sizeof(autocorrect_data + state + 1); i++) {
+      for (int i = 0; i < sizeof(autocorrect_data + state); i++) {
         LOG_DBG("[ANT-22.5] i: %d, state: %d, data: %d", i, state, (autocorrect_data + state + 1)[i]);
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
