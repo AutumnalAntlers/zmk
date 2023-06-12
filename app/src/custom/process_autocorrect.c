@@ -201,7 +201,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .keycode = 42,
               .implicit_modifiers = 0,
               .explicit_modifiers = 0,
-              .state = false,
+              .state = true,
               .timestamp = k_uptime_get()}))
       }
 
