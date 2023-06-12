@@ -30,8 +30,11 @@ static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
 int log_array(char name[], int array[], int length) {
+  if (length == -1) {
+    length == sizeof(array) / sizeof(array[0])
+  }
   for (int i = 0; i < length; i++) {
-    LOG_DBG("[ANT] LOG_ARRAY %s %d/%d] %d [%c]", name, i + 1, length + 1, array[i], (char) (array[i] + 61));
+    LOG_DBG("[ANT] LOG_ARRAY %s %d/%d] %d [%c]", name, i + 1, length, array[i], (char) (array[i] + 61));
   }
 }
 
@@ -195,8 +198,8 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     code = autocorrect_data[state];
     LOG_DBG("[ANT-19.5] state: %d, code: %d, data: %s", state, code, autocorrect_data[state]);
     log_array("AUTOCORRECT_DATA_ALL", autocorrect_data, AUTOCORRECT_MAX_LENGTH);
-    log_array("AUTOCORRECT_DATA", autocorrect_data, sizeof(autocorrect_data));
-    log_array("AUTOCORRECT_DATA_TAIL", autocorrect_data[state], (sizeof(autocorrect_data) - state));
+    log_array("AUTOCORRECT_DATA", autocorrect_data, -1);
+    log_array("AUTOCORRECT_DATA_TAIL", autocorrect_data[state], (sizeof(autocorrect_data) / sizeof(autocorrect_data[0])) - state);
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
@@ -224,7 +227,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       }
 
       // send_string_P((char const *)(autocorrect_data + state + 1));
-      for (int i = 0; i < sizeof(autocorrect_data + state); i++) {
+      for (int i = 0; i < (sizeof(autocorrect_data + state) / sizeof(autocorrect_data[0])); i++) {
         LOG_DBG("[ANT-22.5] i: %d, state: %d, data: %d", i, state, (autocorrect_data + state + 1)[i]);
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
