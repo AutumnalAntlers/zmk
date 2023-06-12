@@ -29,9 +29,9 @@ const uint32_t HIGH_BIT_MASK = 1073741823; // (2**32 >> 2) - 1
 static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
-int log_array(char name[], int array[], int length) {
+int log_array(char name[], uint32_t array[], int length) {
   if (length == -1) {
-    length == sizeof(array) / sizeof(array[0])
+    length = sizeof(array) / sizeof(array[0]);
   }
   for (int i = 0; i < length; i++) {
     LOG_DBG("[ANT] LOG_ARRAY %s %d/%d] %d [%c]", name, i + 1, length, array[i], (char) (array[i] + 61));
