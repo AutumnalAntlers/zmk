@@ -29,6 +29,12 @@ const uint32_t HIGH_BIT_MASK = 1073741823; // (2**32 >> 2) - 1
 static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
+int log_array(int array[]) {
+  for (int i = 0; i < sizeof(array); i++) {
+    LOG_DBG("[ANT-LOG_ARRAY %i/%i] Char: '%c'", i, sizeof(array), (char) (array[i] + 61));
+  }
+}
+
 int bufferLength = 0;
 int readIndex = 0;
 int writeIndex = 0;
@@ -44,9 +50,6 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
   }
   return 0;
 }
-
-char buffer_string[(AUTOCORRECT_MAX_LENGTH*3)];
-char string[(AUTOCORRECT_MAX_LENGTH*3)];
 
 bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   const struct zmk_keycode_state_changed *ev = as_zmk_keycode_state_changed(record);
@@ -128,17 +131,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       return true;
   }
 
-  memset(buffer_string,0,sizeof(buffer_string));
-  for (int i = 0; i < sizeof(typo_buffer); i++)
-  {
-    strncat(buffer_string, &typo_buffer[i], 1);
-    if (i != (sizeof(typo_buffer) - 1)) {
-      strncat(buffer_string, ',', 1);
-      strncat(buffer_string, ' ', 1);
-    }
-  }
-  LOG_DBG("[ANT-09] Buffer: [%s]", buffer_string);
-
+  log_array(typo_buffer);
   // Rotate oldest character if buffer is full.
   if (typo_buffer_size >= AUTOCORRECT_MAX_LENGTH) {
       LOG_DBG("[ANT-10]");
@@ -193,7 +186,8 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     // }
 
     code = autocorrect_data[state];
-    LOG_DBG("[ANT-20] code: %d (%d-%d)", code, A, Z);
+    LOG_DBG("[ANT-19.5] : %d (%d-%d)", code, A, Z);
+    log_array(autocorrect_data);
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
@@ -211,16 +205,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .timestamp = k_uptime_get()}))
       }
 
-      memset(string,0,sizeof(string));
-      for (int i = 0; i < sizeof(autocorrect_data); i++)
-      {
-        strncat(string, &autocorrect_data[i], 1);
-        if (i != (sizeof(autocorrect_data) - 1)) {
-          strncat(string, ',', 1);
-          strncat(string, ' ', 1);
-        }
-      }
-      LOG_DBG("[ANT-22.5 2/2] autocorrect_data: [%s]", string);
+      log_array(autocorrect_data);
       // send_string_P((char const *)(autocorrect_data + state + 1));
 
       if (keycode == 44) {
