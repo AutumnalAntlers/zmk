@@ -129,10 +129,10 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   }
 
   memset(buffer_string,0,sizeof(buffer_string));
-  for (int i = 0; i < sizeof(autocorrect_data); i++)
+  for (int i = 0; i < sizeof(typo_buffer); i++)
   {
-    strncat(buffer_string, &autocorrect_data[i], 1);
-    if (i != (sizeof(autocorrect_data) - 1)) {
+    strncat(buffer_string, &typo_buffer[i], 1);
+    if (i != (sizeof(typo_buffer) - 1)) {
       strncat(buffer_string, ',', 1);
       strncat(buffer_string, ' ', 1);
     }
