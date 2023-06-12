@@ -29,9 +29,9 @@ const uint32_t HIGH_BIT_MASK = 1073741823; // (2**32 >> 2) - 1
 static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
-int log_array(char name[], int array[]) {
-  for (int i = 0; i <= sizeof(array); i++) {
-    LOG_DBG("[ANT] LOG_ARRAY %s %d/%d] Char: '%c'", name, i + 1, sizeof(array) + 1, (char) (array[i] + 61));
+int log_array(char name[], int array[], int length) {
+  for (int i = 0; i < length; i++) {
+    LOG_DBG("[ANT] LOG_ARRAY %s %d/%d] %d [%c]", name, i + 1, length + 1, array[i], (char) (array[i] + 61));
   }
 }
 
@@ -130,13 +130,15 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       return true;
   }
 
-  log_array("TYPO_BUFFER", typo_buffer);
+  LOG_DBG("[ANT] typo_buffer_size: %d", typo_buffer_size);
+  log_array("TYPO_BUFFER", typo_buffer, typo_buffer_size);
   // Rotate oldest character if buffer is full.
   if (typo_buffer_size >= AUTOCORRECT_MAX_LENGTH) {
       LOG_DBG("[ANT-10] Rotating buffer");
       memmove(typo_buffer, typo_buffer + 1, AUTOCORRECT_MAX_LENGTH - 1);
       typo_buffer_size = AUTOCORRECT_MAX_LENGTH - 1;
-      log_array("TYPO_BUFFER", typo_buffer);
+      LOG_DBG("[ANT] typo_buffer_size: %d", typo_buffer_size);
+      log_array("TYPO_BUFFER", typo_buffer, typo_buffer_size);
   }
 
   LOG_DBG("[ANT-11] Appending keycode to buffer");
@@ -148,7 +150,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       return true;
   }
   LOG_DBG("[ANT] typo_buffer_size: %d", typo_buffer_size);
-  log_array("TYPO_BUFFER", typo_buffer);
+  log_array("TYPO_BUFFER", typo_buffer, typo_buffer_size);
+
+  log_array("TYPO_BUFFER_ALL", typo_buffer, AUTOCORRECT_MAX_LENGTH);
 
   // Check for typo in buffer using a trie stored in `autocorrect_data`.
   int state = 0;
@@ -156,8 +160,8 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
     LOG_DBG("[ANT-14 1/4] i: %d", i);
     uint32_t const key_i = typo_buffer[i];
-    LOG_DBG("[ANT-14 2/4] code: %d [%c]", code, (char) code);
-    LOG_DBG("[ANT-14 3/4] key_i: %d [%c]", key_i);
+    LOG_DBG("[ANT-14 2/4] code: %d [%c]", code, (char) (code + 61));
+    LOG_DBG("[ANT-14 3/4] key_i: %d [%c]", key_i, (char) (key_i + 61));
     LOG_DBG("[ANT-14 4/4] state: %d", state);
     if (code & (HIGH_BIT_MASK + 1)) { // Check for match in node with multiple children.
       code &= HIGH_BIT_MASK;
@@ -190,7 +194,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
     code = autocorrect_data[state];
     LOG_DBG("[ANT-19.5] state: %d, code: %d, data: %s", state, code, autocorrect_data[state]);
-    log_array("AUTOCORRECT_DATA", autocorrect_data);
+    log_array("AUTOCORRECT_DATA_ALL", autocorrect_data, AUTOCORRECT_MAX_LENGTH);
+    log_array("AUTOCORRECT_DATA", autocorrect_data, sizeof(autocorrect_data));
+    log_array("AUTOCORRECT_DATA_TAIL", autocorrect_data[state], (sizeof(autocorrect_data) - state));
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
