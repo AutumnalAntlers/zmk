@@ -45,8 +45,8 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
   return 0;
 }
 
-char buffer_string[AUTOCORRECT_MAX_LENGTH];
-char string[AUTOCORRECT_MAX_LENGTH];
+char buffer_string[(AUTOCORRECT_MAX_LENGTH*3)];
+char string[(AUTOCORRECT_MAX_LENGTH*3)];
 
 bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   const struct zmk_keycode_state_changed *ev = as_zmk_keycode_state_changed(record);
@@ -162,7 +162,6 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
     LOG_DBG("[ANT-14 1] i: %d", i);
     uint32_t const key_i = typo_buffer[i];
-
     LOG_DBG("[ANT-14 2] code: %d", code);
     LOG_DBG("[ANT-14 3] key_i: %d", key_i);
     LOG_DBG("[ANT-14 4] state: %d", key_i);
