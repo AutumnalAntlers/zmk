@@ -209,7 +209,7 @@ def serialize_trie(autocorrects: List[Tuple[str, str]],
       i = 0  # Make the autocorrect data for this entry and serialize it.
       while i < min(len(typo), len(correction)) and typo[i] == correction[i]:
         i += 1
-      backspaces = len(typo) - i - 1 + word_boundary_ending
+      backspaces = len(typo) - i + word_boundary_ending
       assert 0 <= backspaces <= 63
       correction = correction[i:]
       data = [backspaces + 128] + list(bytes(correction, 'ascii')) + [0]
