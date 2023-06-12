@@ -73,26 +73,26 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     case 53 ... 56:
       LOG_DBG("[ANT-05b]");
       // Set a word boundary if space, period, digit, etc. is pressed.
-      keycode = SPACE;
+      keycode = 44;
       break;
     case 44:
       LOG_DBG("[ANT-05c]");
       // Set a word boundary if space, period, digit, etc. is pressed.
-      keycode = SPACE;
+      keycode = 44;
       break;
     case ENTER:
       LOG_DBG("[ANT-05.5a]");
       // Behave more conservatively for the enter key. Reset, so that enter
       // can't be used on a word ending.
       typo_buffer_size = 0;
-      keycode          = SPACE;
+      keycode          = 44;
       break;
     case 40:
       LOG_DBG("[ANT-05.5b]");
       // Behave more conservatively for the enter key. Reset, so that enter
       // can't be used on a word ending.
       typo_buffer_size = 0;
-      keycode          = SPACE;
+      keycode          = 44;
       break;
     case BSPC:
       LOG_DBG("[ANT-06a]");
@@ -111,12 +111,12 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     case DQT:
       LOG_DBG("[ANT-07a]");
       // Treat " as a word boundary.
-      keycode = SPACE;
+      keycode = 44;
       break;
     case 52: // XXX: uhm, that's a single quote
       LOG_DBG("[ANT-07b]");
       // Treat " as a word boundary.
-      keycode = SPACE;
+      keycode = 44;
       break;
     default:
       LOG_DBG("[ANT-08]");
@@ -147,9 +147,12 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   int state = 0;
   uint32_t code  = autocorrect_data[state];
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
-    LOG_DBG("[ANT-14] i: %d", i);
+    LOG_DBG("[ANT-14 1] i: %d", i);
     uint32_t const key_i = typo_buffer[i];
 
+    LOG_DBG("[ANT-14 2] code: %d", code);
+    LOG_DBG("[ANT-14 3] key_i: %d", key_i);
+    LOG_DBG("[ANT-14 4] state: %d", key_i);
     if (code & (HIGH_BIT_MASK + 1)) { // Check for match in node with multiple children.
       code &= HIGH_BIT_MASK;
       LOG_DBG("[ANT-15] code: %d", code);
@@ -165,8 +168,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       LOG_DBG("[ANT-18]");
       return true;
     } else if (!(code = autocorrect_data[(++state)])) {
+      LOG_DBG("[ANT-19] pre-state: %d", state);
       ++state;
-      LOG_DBG("[ANT-19] state: %d", state);
+      LOG_DBG("[ANT-19] post-state: %d", state);
     }
 
     // XXX becausen bacause 
@@ -196,9 +200,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       }
       // send_string_P((char const *)(autocorrect_data + state + 1));
 
-      if (keycode == SPACE) {
+      if (keycode == 44) {
         LOG_DBG("[ANT-23]");
-        typo_buffer[0]  = SPACE;
+        typo_buffer[0]  = 44;
         typo_buffer_size = 1;
         return true;
       } else {
