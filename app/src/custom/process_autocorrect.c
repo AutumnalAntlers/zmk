@@ -45,6 +45,9 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
   return 0;
 }
 
+char buffer_string[AUTOCORRECT_MAX_LENGTH];
+char string[AUTOCORRECT_MAX_LENGTH];
+
 bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   const struct zmk_keycode_state_changed *ev = as_zmk_keycode_state_changed(record);
   switch (keycode) {
@@ -124,7 +127,17 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       typo_buffer_size = 0;
       return true;
   }
-  LOG_DBG("[ANT-09]");
+
+  memset(buffer_string,0,sizeof(buffer_string));
+  for (int i = 0; i < sizeof(autocorrect_data); i++)
+  {
+    strncat(buffer_string, &autocorrect_data[i], 1);
+    if (i != (sizeof(autocorrect_data) - 1)) {
+      strncat(buffer_string, ',', 1);
+      strncat(buffer_string, ' ', 1);
+    }
+  }
+  LOG_DBG("[ANT-09] Buffer: [%s]", buffer_string);
 
   // Rotate oldest character if buffer is full.
   if (typo_buffer_size >= AUTOCORRECT_MAX_LENGTH) {
@@ -198,10 +211,17 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .state = false,
               .timestamp = k_uptime_get()}))
       }
+
+      memset(string,0,sizeof(string));
       for (int i = 0; i < sizeof(autocorrect_data); i++)
       {
-        LOG_DBG("[ANT-22.5 %d/%d] autocorrect_data: %d", i, sizeof(autocorrect_data), autocorrect_data[i]);
+        strncat(string, &autocorrect_data[i], 1);
+        if (i != (sizeof(autocorrect_data) - 1)) {
+          strncat(string, ',', 1);
+          strncat(string, ' ', 1);
+        }
       }
+      LOG_DBG("[ANT-22.5 2/2] autocorrect_data: [%s]", string);
       // send_string_P((char const *)(autocorrect_data + state + 1));
 
       if (keycode == 44) {
