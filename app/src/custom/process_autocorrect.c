@@ -47,7 +47,7 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
   if (ev) {
     // count only key up events
     if (!ev->state) {
-      LOG_DBG("[ANT-01] keycode: %d", ev->keycode);
+      LOG_DBG("[ANT-01] keycode: %d [%c]", ev->keycode, (char) (ev->keycode + 61));
       process_autocorrect(ev->keycode, eh);
     }
   }
@@ -155,8 +155,6 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   LOG_DBG("[ANT] typo_buffer_size: %d", typo_buffer_size);
   log_array("TYPO_BUFFER", typo_buffer, typo_buffer_size);
 
-  log_array("TYPO_BUFFER_ALL", typo_buffer, AUTOCORRECT_MAX_LENGTH);
-
   // Check for typo in buffer using a trie stored in `autocorrect_data`.
   int state = 0;
   uint32_t code  = autocorrect_data[state];
@@ -199,7 +197,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     LOG_DBG("[ANT-19.5] state: %d, code: %d, data: %s", state, code, autocorrect_data[state]);
     log_array("AUTOCORRECT_DATA_ALL", autocorrect_data, AUTOCORRECT_MAX_LENGTH);
     log_array("AUTOCORRECT_DATA", autocorrect_data, -1);
-    log_array("AUTOCORRECT_DATA_TAIL", autocorrect_data[state], (sizeof(autocorrect_data) / sizeof(autocorrect_data[0])) - state);
+    log_array("AUTOCORRECT_DATA_TAIL", autocorrect_data + state, ((sizeof(autocorrect_data) / sizeof(autocorrect_data[0])) - state));
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
