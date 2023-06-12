@@ -31,7 +31,7 @@ static uint32_t typo_buffer_size                    = 1;
 
 int log_array(char name[], int array[]) {
   for (int i = 0; i <= sizeof(array); i++) {
-    LOG_DBG("[ANT] LOG_ARRAY %s %i/%i] Char: '%c'", name, i + 1, sizeof(array) + 1, (char) (array[i] + 61));
+    LOG_DBG("[ANT] LOG_ARRAY %s %d/%d] Char: '%c'", name, i + 1, sizeof(array) + 1, (char) (array[i] + 61));
   }
 }
 
@@ -59,8 +59,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       // process normally
       break;
     case 4 ... 29:
-      LOG_DBG("[ANT-02b 1/2]");
-      LOG_DBG("[ANT-02b 2/2] %i %i", A, Z);
+      LOG_DBG("[ANT-02b]");
       // process normally
       break;
     case N1 ... N0:
@@ -134,51 +133,55 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   log_array("TYPO_BUFFER", typo_buffer);
   // Rotate oldest character if buffer is full.
   if (typo_buffer_size >= AUTOCORRECT_MAX_LENGTH) {
-      LOG_DBG("[ANT-10]");
+      LOG_DBG("[ANT-10] Rotating buffer");
       memmove(typo_buffer, typo_buffer + 1, AUTOCORRECT_MAX_LENGTH - 1);
       typo_buffer_size = AUTOCORRECT_MAX_LENGTH - 1;
+      log_array("TYPO_BUFFER", typo_buffer);
   }
-  LOG_DBG("[ANT-11]");
 
+  LOG_DBG("[ANT-11] Appending keycode to buffer");
   // Append `keycode` to buffer.
   typo_buffer[typo_buffer_size++] = keycode;
   // Return if buffer is smaller than the shortest word.
   if (typo_buffer_size < AUTOCORRECT_MIN_LENGTH) {
-      LOG_DBG("[ANT-12]");
+      LOG_DBG("[ANT-12] Returning early because buffer is shorter than any match");
       return true;
   }
-  LOG_DBG("[ANT-13]");
+  LOG_DBG("[ANT] typo_buffer_size: %d", typo_buffer_size);
+  log_array("TYPO_BUFFER", typo_buffer);
 
   // Check for typo in buffer using a trie stored in `autocorrect_data`.
   int state = 0;
   uint32_t code  = autocorrect_data[state];
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
-    LOG_DBG("[ANT-14 1] i: %d", i);
+    LOG_DBG("[ANT-14 1/4] i: %d", i);
     uint32_t const key_i = typo_buffer[i];
-    LOG_DBG("[ANT-14 2] code: %d", code);
-    LOG_DBG("[ANT-14 3] key_i: %d", key_i);
-    LOG_DBG("[ANT-14 4] state: %d", key_i);
+    LOG_DBG("[ANT-14 2/4] code: %d [%c]", code, (char) code);
+    LOG_DBG("[ANT-14 3/4] key_i: %d [%c]", key_i);
+    LOG_DBG("[ANT-14 4/4] state: %d", state);
     if (code & (HIGH_BIT_MASK + 1)) { // Check for match in node with multiple children.
       code &= HIGH_BIT_MASK;
-      LOG_DBG("[ANT-15] code: %d", code);
+      LOG_DBG("[ANT-15 1/3] code: %d", code);
       for (; code != key_i; code = autocorrect_data[(state += 3)]) {
+        LOG_DBG("[ANT-15 2/3] code: %d", code);
         if (!code) return true;
       }
+      LOG_DBG("[ANT-15 3/3] code: %d", code);
       // Follow link to child node.
       LOG_DBG("[ANT-16] pre-state: %d", state);
       state = (autocorrect_data[(state + 1)] | autocorrect_data[(state + 2)] << 8);
       LOG_DBG("[ANT-17] post-state: %d", state);
       // Check for match in node with single child.
     } else if (code != key_i) {
-      LOG_DBG("[ANT-18]");
+      LOG_DBG("[ANT-18] No match");
       return true;
     } else if (!(code = autocorrect_data[(++state)])) {
-      LOG_DBG("[ANT-19] pre-state: %d", state);
+      LOG_DBG("[ANT-19] pre-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
       ++state;
-      LOG_DBG("[ANT-19] post-state: %d", state);
+      LOG_DBG("[ANT-19] post-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
     }
 
-    // XXX becausen bacause 
+    // XXX
     // // Stop if `state` becomes an invalid index. This should not normally
     // // happen, it is a safeguard in case of a bug, data corruption, etc.
     // if (state >= DICTIONARY_SIZE) {
@@ -186,7 +189,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     // }
 
     code = autocorrect_data[state];
-    LOG_DBG("[ANT-19.5] : %d (%d-%d)", code, A, Z);
+    LOG_DBG("[ANT-19.5] state: %d, code: %d, data: %s", state, code, autocorrect_data[state]);
     log_array("AUTOCORRECT_DATA", autocorrect_data);
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
