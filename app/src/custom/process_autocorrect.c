@@ -96,19 +96,19 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
           --typo_buffer_size;
       }
       return true;
-    case 44:
+    case 42:
       LOG_DBG("[ANT-06b]");
       // Remove last character from the buffer.
       if (typo_buffer_size > 0) {
           --typo_buffer_size;
       }
       return true;
-    case DQT
+    case DQT:
       LOG_DBG("[ANT-07a]");
       // Treat " as a word boundary.
       keycode = SPACE;
       break;
-    case 52 // XXX: uhm, that's a single quote
+    case 52: // XXX: uhm, that's a single quote
       LOG_DBG("[ANT-07b]");
       // Treat " as a word boundary.
       keycode = SPACE;
