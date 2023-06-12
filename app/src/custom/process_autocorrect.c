@@ -203,6 +203,15 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .explicit_modifiers = 0,
               .state = true,
               .timestamp = k_uptime_get()}))
+        ZMK_EVENT_RAISE(
+          new_zmk_keycode_state_changed(
+            (struct zmk_keycode_state_changed){
+              .usage_page = ev->usage_page,
+              .keycode = 42,
+              .implicit_modifiers = 0,
+              .explicit_modifiers = 0,
+              .state = false,
+              .timestamp = k_uptime_get()}))
       }
 
       // send_string_P((char const *)(autocorrect_data + state + 1));
@@ -215,7 +224,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       } else {
         LOG_DBG("[ANT-24]");
         typo_buffer_size = 0;
-        return false;
+       return false;
       }
     }
   }
