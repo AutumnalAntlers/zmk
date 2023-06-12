@@ -30,9 +30,6 @@ static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
 int log_array(int num, char name[], uint32_t array[], int length) {
-  if (length == -1) {
-    length = sizeof(array) / sizeof(array[0]);
-  }
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
   for (int i = 0; i < length; i++) {
     LOG_DBG("[ANT %02d %d/%d] %d [%c]", num, i + 1, length, array[i], (char) (array[i] + 61));
@@ -162,11 +159,12 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   int state = 0;
   uint32_t code  = autocorrect_data[state];
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
-    LOG_DBG("[ANT 14 1/4] i: %d", i);
+    LOG_DBG("[ANT 14 1/5] i: %d", i);
     uint32_t const key_i = typo_buffer[i];
-    LOG_DBG("[ANT 14 2/4] code: %d [%c]", code, (char) (code + 61));
-    LOG_DBG("[ANT 14 3/4] key_i: %d [%c]", key_i, (char) (key_i + 61));
-    LOG_DBG("[ANT 14 4/4] state: %d", state);
+    LOG_DBG("[ANT 14 2/5] code: %d [%c]", code, (char) (code + 61));
+    LOG_DBG("[ANT 14 3/5] key_i: %d [%c]", key_i, (char) (key_i + 61));
+    LOG_DBG("[ANT 14 4/5] state: %d", state);
+    LOG_DBG("[ANT 14 5/5] data: %d", autocorrect_data[state]);
     if (code & (HIGH_BIT_MASK + 1)) { // Check for match in node with multiple children.
       code &= HIGH_BIT_MASK;
       LOG_DBG("[ANT 15 1/3] code: %d", code);
@@ -191,6 +189,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
     // Stop if `state` becomes an invalid index. This should not normally
     // happen, it is a safeguard in case of a bug, data corruption, etc.
+    LOG_DBG("[ANT 19.5] max_state: %d", (sizeof(autocorrect_data)/sizeof(autocorrect_data[0])));
     if (state >= (sizeof(autocorrect_data)/sizeof(autocorrect_data[0]))) {
       LOG_DBG("[ANT 19.5] Error: state too big (%d)", state);
       return true;
@@ -198,8 +197,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
     code = autocorrect_data[state];
     LOG_DBG("[ANT 20] state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
-    log_array(20, "AUTOCORRECT_DATA_ALL", autocorrect_data, AUTOCORRECT_MAX_LENGTH);
-    log_array(20, "AUTOCORRECT_DATA", autocorrect_data, -1);
+    log_array(20, "AUTOCORRECT_DATA", autocorrect_data, sizeof(autocorrect_data));
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
