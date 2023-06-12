@@ -284,14 +284,10 @@ def write_generated_code(autocorrects: List[Tuple[str, str]],
   max_typo = max(autocorrects, key=typo_len)[0]
 
   def decode_keycode(d: int) -> str:
-    if d == 0:
-      return "0"
-    elif d == 0x2c:
-      return "SPACE"
-    elif d == 0x43:
-      return "QUOT"
+    if d in [0, KC_SPC, KC_QUOT]:
+      return str(d)
     elif ord('A') <= d + 61 <= ord('Z'):
-      return str(chr(d + 61))
+      return str(d)
     else:
       raise ValueError
 
