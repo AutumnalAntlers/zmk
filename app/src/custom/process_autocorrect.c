@@ -30,8 +30,8 @@ static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
 int log_array(char name[], int array[]) {
-  for (int i = 0; i < sizeof(array); i++) {
-    LOG_DBG("[ANT] LOG_ARRAY %s %i/%i] Char: '%c'", name, i, sizeof(array), (char) (array[i] + 61));
+  for (int i = 0; i <= sizeof(array); i++) {
+    LOG_DBG("[ANT] LOG_ARRAY %s %i/%i] Char: '%c'", name, i + 1, sizeof(array) + 1, (char) (array[i] + 61));
   }
 }
 
