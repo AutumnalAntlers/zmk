@@ -33,7 +33,7 @@ int log_array(int num, char name[], uint32_t array[], int length) {
   if (length == -1) {
     length = sizeof(array) / sizeof(array[0]);
   }
-  LOG_DBG("[ANT %02d] Log Array: %s", num, name)
+  LOG_DBG("[ANT %02d] Log Array: %s", num, name);
   for (int i = 0; i < length; i++) {
     LOG_DBG("[ANT %02d %d/%d] %d [%c]", num, i + 1, length, array[i], (char) (array[i] + 61));
   }
