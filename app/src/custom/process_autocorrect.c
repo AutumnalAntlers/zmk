@@ -215,6 +215,27 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       }
 
       // send_string_P((char const *)(autocorrect_data + state + 1));
+      for (int i = 0; i < sizeof(autocorrect_data + state + 1); i++) {
+        LOG_DBG("[ANT-22.5] i: %d, state: %d, data: %d", i, state, (autocorrect_data + state + 1)[i]);
+        ZMK_EVENT_RAISE(
+          new_zmk_keycode_state_changed(
+            (struct zmk_keycode_state_changed){
+              .usage_page = ev->usage_page,
+              .keycode = (autocorrect_data + state + 1)[i],
+              .implicit_modifiers = 0,
+              .explicit_modifiers = 0,
+              .state = true,
+              .timestamp = k_uptime_get()}))
+        ZMK_EVENT_RAISE(
+          new_zmk_keycode_state_changed(
+            (struct zmk_keycode_state_changed){
+              .usage_page = ev->usage_page,
+              .keycode = (autocorrect_data + state + 1)[i],
+              .implicit_modifiers = 0,
+              .explicit_modifiers = 0,
+              .state = false,
+              .timestamp = k_uptime_get()}))
+      }
 
       if (keycode == 44) {
         LOG_DBG("[ANT-23]");
