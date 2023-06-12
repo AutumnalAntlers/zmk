@@ -75,6 +75,11 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       // Set a word boundary if space, period, digit, etc. is pressed.
       keycode = SPACE;
       break;
+    case 44:
+      LOG_DBG("[ANT-05c]");
+      // Set a word boundary if space, period, digit, etc. is pressed.
+      keycode = SPACE;
+      break;
     case ENTER:
       LOG_DBG("[ANT-05.5a]");
       // Behave more conservatively for the enter key. Reset, so that enter
