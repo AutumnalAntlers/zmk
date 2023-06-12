@@ -192,11 +192,15 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
               .usage_page = ev->usage_page,
-              .keycode = BSPC,
+              .keycode = 42,
               .implicit_modifiers = 0,
               .explicit_modifiers = 0,
               .state = false,
               .timestamp = k_uptime_get()}))
+      }
+      for (int i = 0; i < sizeof(autocorrect_data); i++)
+      {
+        LOG_DBG("[ANT-22.5 %d/%d] autocorrect_data: %d", i, sizeof(autocorrect_data), autocorrect_data[i]);
       }
       // send_string_P((char const *)(autocorrect_data + state + 1));
 
