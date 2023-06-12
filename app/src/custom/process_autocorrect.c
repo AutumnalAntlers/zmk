@@ -29,9 +29,9 @@ const uint32_t HIGH_BIT_MASK = 1073741823; // (2**32 >> 2) - 1
 static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
-int log_array(int array[]) {
+int log_array(char name[], int array[]) {
   for (int i = 0; i < sizeof(array); i++) {
-    LOG_DBG("[ANT-LOG_ARRAY %i/%i] Char: '%c'", i, sizeof(array), (char) (array[i] + 61));
+    LOG_DBG("[ANT] LOG_ARRAY %s %i/%i] Char: '%c'", name, i, sizeof(array), (char) (array[i] + 61));
   }
 }
 
@@ -131,7 +131,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       return true;
   }
 
-  log_array(typo_buffer);
+  log_array("TYPO_BUFFER", typo_buffer);
   // Rotate oldest character if buffer is full.
   if (typo_buffer_size >= AUTOCORRECT_MAX_LENGTH) {
       LOG_DBG("[ANT-10]");
@@ -187,7 +187,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
     code = autocorrect_data[state];
     LOG_DBG("[ANT-19.5] : %d (%d-%d)", code, A, Z);
-    log_array(autocorrect_data);
+    log_array("AUTOCORRECT_DATA", autocorrect_data);
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
@@ -205,7 +205,6 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .timestamp = k_uptime_get()}))
       }
 
-      log_array(autocorrect_data);
       // send_string_P((char const *)(autocorrect_data + state + 1));
 
       if (keycode == 44) {
