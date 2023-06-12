@@ -63,7 +63,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       LOG_DBG("[ANT-03b]");
     case TAB ... SEMICOLON:
       LOG_DBG("[ANT-04a]");
-    case 43 ... 51:
+    case 45 ... 51:
       LOG_DBG("[ANT-04b]");
     case GRAVE ... SLASH:
       LOG_DBG("[ANT-05a]");
