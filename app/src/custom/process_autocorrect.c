@@ -186,12 +186,12 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       LOG_DBG("[ANT-19] post-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
     }
 
-    // XXX
-    // // Stop if `state` becomes an invalid index. This should not normally
-    // // happen, it is a safeguard in case of a bug, data corruption, etc.
-    // if (state >= DICTIONARY_SIZE) {
-    //   return true;
-    // }
+    // Stop if `state` becomes an invalid index. This should not normally
+    // happen, it is a safeguard in case of a bug, data corruption, etc.
+    if (state >= (sizeof(autocorrect_data)/sizeof(autocorrect_data[0]))) {
+      LOG_DBG("[ANT-19.25] warning: state too big (%d)", state);
+      return true;
+    }
 
     code = autocorrect_data[state];
     LOG_DBG("[ANT-19.5] state: %d, code: %d, data: %s", state, code, autocorrect_data[state]);
