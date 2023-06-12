@@ -53,34 +53,63 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       // process normally
       break;
     case 4 ... 29:
-      LOG_DBG("[ANT-02b]");
+      LOG_DBG("[ANT-02b 1/2]");
+      LOG_DBG("[ANT-02b 2/2] %i %i", A, Z);
       // process normally
       break;
     case N1 ... N0:
-      LOG_DBG("[ANT-03]");
+      LOG_DBG("[ANT-03a]");
+    case 30 ... 39:
+      LOG_DBG("[ANT-03b]");
     case TAB ... SEMICOLON:
-      LOG_DBG("[ANT-04]");
+      LOG_DBG("[ANT-04a]");
+    case 43 ... 51:
+      LOG_DBG("[ANT-04b]");
     case GRAVE ... SLASH:
-      LOG_DBG("[ANT-04]");
+      LOG_DBG("[ANT-05a]");
+      // Set a word boundary if space, period, digit, etc. is pressed.
+      keycode = SPACE;
+      break;
+    case 53 ... 56:
+      LOG_DBG("[ANT-05b]");
       // Set a word boundary if space, period, digit, etc. is pressed.
       keycode = SPACE;
       break;
     case ENTER:
-      LOG_DBG("[ANT-05]");
+      LOG_DBG("[ANT-05.5a]");
+      // Behave more conservatively for the enter key. Reset, so that enter
+      // can't be used on a word ending.
+      typo_buffer_size = 0;
+      keycode          = SPACE;
+      break;
+    case 40:
+      LOG_DBG("[ANT-05.5b]");
       // Behave more conservatively for the enter key. Reset, so that enter
       // can't be used on a word ending.
       typo_buffer_size = 0;
       keycode          = SPACE;
       break;
     case BSPC:
-      LOG_DBG("[ANT-06]");
+      LOG_DBG("[ANT-06a]");
       // Remove last character from the buffer.
       if (typo_buffer_size > 0) {
           --typo_buffer_size;
       }
       return true;
-    case DQT:
-      LOG_DBG("[ANT-07]");
+    case 44:
+      LOG_DBG("[ANT-06b]");
+      // Remove last character from the buffer.
+      if (typo_buffer_size > 0) {
+          --typo_buffer_size;
+      }
+      return true;
+    case DQT
+      LOG_DBG("[ANT-07a]");
+      // Treat " as a word boundary.
+      keycode = SPACE;
+      break;
+    case 52 // XXX: uhm, that's a single quote
+      LOG_DBG("[ANT-07b]");
       // Treat " as a word boundary.
       keycode = SPACE;
       break;
@@ -135,7 +164,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       LOG_DBG("[ANT-19] state: %d", state);
     }
 
-    // XXX
+    // XXX becausen bacause 
     // // Stop if `state` becomes an invalid index. This should not normally
     // // happen, it is a safeguard in case of a bug, data corruption, etc.
     // if (state >= DICTIONARY_SIZE) {
