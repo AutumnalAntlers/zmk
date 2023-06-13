@@ -47,7 +47,7 @@ static void log_array(const size_t num, const char name[], const uint32_t array[
   }
 }
 
-size_t autocorrect_event_listener(const zmk_event_t *eh) {
+int autocorrect_event_listener(const zmk_event_t *eh) {
   const struct zmk_keycode_state_changed *ev = as_zmk_keycode_state_changed(eh);
   if (ev) {
     // count only key up events
@@ -56,7 +56,7 @@ size_t autocorrect_event_listener(const zmk_event_t *eh) {
       process_autocorrect(ev->keycode, eh);
     }
   }
-  // TODO: Any particular reason to return `size_t' over `bool`? Must we be `bool`?
+  // TODO: Any particular reason to return `int' over `bool`? Who consumes our bool?
   return 0;
 }
 
@@ -167,7 +167,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   size_t state = 0;
   uint32_t code  = autocorrect_data[state];
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
-    log_array(14, "AUTOCORRECT_DATA (Partial)", autocorrect_data[state], AUTOCORRECT_MIN_LENGTH + 1);
+    log_array(14, "AUTOCORRECT_DATA (Partial)", &autocorrect_data[state], AUTOCORRECT_MIN_LENGTH + 1);
     LOG_DBG("[ANT 14 1/5] i: %d", i);
     uint32_t const key_i = typo_buffer[i];
     LOG_DBG("[ANT 14 2/5] code: %d [%c]", code, (char) (code + 61));
@@ -263,4 +263,4 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
 ZMK_LISTENER(autocorrect, autocorrect_event_listener);
 ZMK_SUBSCRIPTION(autocorrect, zmk_keycode_state_changed);
-log_array(0, "AUTOCORRECT_DATA", autocorrect_data, DICTIONARY_SIZE);
+log_array(size_t 0, "AUTOCORRECT_DATA", autocorrect_data, DICTIONARY_SIZE);
