@@ -218,7 +218,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
       LOG_DBG("[ANT 21] backspaces: %d", backspaces);
       const k_timeout_t sleep_time = K_MSEC(10);
-      static void tap_key (const uint32_t keycode) {
+      void tap_key (const uint32_t keycode) {
         static const void set_key (const uint32_t keycode, const bool state) {
           ZMK_EVENT_RAISE(
             new_zmk_keycode_state_changed(
