@@ -23,6 +23,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #endif
 
 #include <string.h>
+#include <time.h>
 
 const uint32_t HIGH_BIT_MASK = 1073741823; // (2**32 >> 2) - 1
 
@@ -32,6 +33,7 @@ static uint32_t typo_buffer_size                    = 1;
 int log_array(int num, char name[], uint32_t array[], int length) {
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
   for (int i = 0; i < length; i++) {
+    nanosleep((const struct timespec[]){{0, 100000000L}}, NULL);
     LOG_DBG("[ANT %02d %d/%d] %d [%c]", num, i + 1, length, array[i], (char) (array[i] + 61));
   }
 }
@@ -225,8 +227,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       }
 
       // send_string_P((char const *)(autocorrect_data + state + 1));
-      for (int i = 0; i < ((sizeof(autocorrect_data) + (state * sizeof(autocorrect_data[0]))) / sizeof(autocorrect_data[0])); i++) {
-        LOG_DBG("[ANT 22.5] i: %d, state: %d, cap: %s, data: %d", i, state, ((sizeof(autocorrect_data) + (state * sizeof(autocorrect_data[0]))) / sizeof(autocorrect_data[0])), (autocorrect_data + state + 1)[i]);
+      // for (int i = 0; i < ((sizeof(autocorrect_data) + (state * sizeof(autocorrect_data[0]))) / sizeof(autocorrect_data[0])); i++) {
+      //   LOG_DBG("[ANT 22.5] i: %d, state: %d, cap: %s, data: %d", i, state, ((sizeof(autocorrect_data) + (state * sizeof(autocorrect_data[0]))) / sizeof(autocorrect_data[0])), (autocorrect_data + state + 1)[i]);
+      for (int i = 0; i < strlen((char const *)(autocorrect_data + state + 1)); i++) {
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
