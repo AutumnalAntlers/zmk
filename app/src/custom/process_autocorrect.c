@@ -65,7 +65,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   static bool log_autocorrect_data = true;
   if (log_autocorrect_data) {
     log_array(0, "AUTOCORRECT_DATA", autocorrect_data, DICTIONARY_SIZE);
-    log_autocorrect_data = (static const bool)(false)
+    log_autocorrect_data = (const bool)(false);
   }
   switch (keycode) {
     case A ... Z:
