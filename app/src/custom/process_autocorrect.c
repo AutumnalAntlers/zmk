@@ -41,13 +41,9 @@ static size_t uint32_t_strlen (const uint32_t * array, const int max_length) {
 
 static void log_array(const size_t num, const char name[], const uint32_t array[], const size_t length) {
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
-  for (size_t i = 0; i < length; i=(i+5)) {
-    k_sleep(K_MSEC(5));
-    for (size_t j = i; j < (i + 5); j++) {
-      if (j < length) {
-        LOG_DBG("[ANT %02d %d/%d] %d [%c]", num, j + 1, length, array[j], (char) (array[j] + 61));
-      }
-    }
+  for (size_t i = 0; i < length; i++) {
+    k_sleep(K_MSEC(15));
+    LOG_DBG("[ANT %02d %d/%d] %d [%c]", num, i + 1, length, array[i], (char) (array[i] + 61));
   }
 }
 
@@ -169,8 +165,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
   // Check for typo in buffer using a trie stored in `autocorrect_data`.
   size_t state = 0;
-  uint32_t code  = autocorrect_data[state * sizeof(autocorrect_data[0])];
+  uint32_t code  = autocorrect_data[state];
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
+    log_array(14, "AUTOCORRECT_DATA (Partial)", autocorrect_data[state], AUTOCORRECT_MIN_LENGTH + 1);
     LOG_DBG("[ANT 14 1/5] i: %d", i);
     uint32_t const key_i = typo_buffer[i];
     LOG_DBG("[ANT 14 2/5] code: %d [%c]", code, (char) (code + 61));
@@ -179,9 +176,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     LOG_DBG("[ANT 14 5/5] data: %d", autocorrect_data[state]);
     if (code & (HIGH_BIT_MASK + 1)) { // Check for match in node with multiple children.
       code &= HIGH_BIT_MASK;
-      LOG_DBG("[ANT 15 1/3] code: %d", code);
+      LOG_DBG("[ANT 15 1/3] code: %d [%c]", code, (char)(code + 61));
       for (; code != key_i; code = autocorrect_data[(state += 3 * sizeof(autocorrect_data[0]))]) {
-        LOG_DBG("[ANT 15 2/3] code: %d", code);
+        LOG_DBG("[ANT 15 2/3] code: %d [%c], key_i: %d [%c], state: %d", code, (char)(code + 61), key_i, (char)(key_i + 61), state);
         if (!code) return true;
       }
       LOG_DBG("[ANT 15 3/3] code: %d", code);
@@ -266,3 +263,4 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
 ZMK_LISTENER(autocorrect, autocorrect_event_listener);
 ZMK_SUBSCRIPTION(autocorrect, zmk_keycode_state_changed);
+log_array(0, "AUTOCORRECT_DATA", autocorrect_data, DICTIONARY_SIZE);
