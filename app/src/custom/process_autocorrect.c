@@ -182,7 +182,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     if (code & (HIGH_BIT_MASK + 1)) { // Check for match in node with multiple children.
       code &= HIGH_BIT_MASK;
       LOG_DBG("[ANT 15 1/3] code: %d [%c]", code, (char)(code + 61));
-      for (; code != key_i; code = autocorrect_data[(state += 3 * sizeof(autocorrect_data[0]))]) {
+      for (; code != key_i; code = autocorrect_data[(state += 3 * 2)]) {
         LOG_DBG("[ANT 15 2/3] code: %d [%c], key_i: %d [%c], state: %d", code, (char)(code + 61), key_i, (char)(key_i + 61), state);
         if (!code) return true;
       }
