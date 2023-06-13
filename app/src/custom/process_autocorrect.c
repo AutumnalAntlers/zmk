@@ -42,7 +42,7 @@ static size_t uint32_t_strlen (const uint32_t * array, const int max_length) {
 static void log_array(const size_t num, const char name[], const uint32_t array[], const size_t length) {
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
   for (size_t i = 0; i < length; i=(i+5)) {
-    k_sleep(K_MSEC(1));
+    k_sleep(K_MSEC(5));
     for (size_t j = i; j < (i + 5); j++) {
       if (j < length) {
         LOG_DBG("[ANT %02d %d/%d] %d [%c]", num, j + 1, length, array[j], (char) (array[j] + 61));
