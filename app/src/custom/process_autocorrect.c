@@ -34,12 +34,12 @@ static const int DICTIONARY_SIZE = sizeof(autocorrect_data) / sizeof(autocorrect
 static int uint32_t_strlen (const uint32_t * array, const int max_length) {
   int i = 0;
   while (array[++i] != (uint32_t)('\0')) {
-    if (i >= max_length) { break; }
+    if (i >= max_length) { LOG_DBG("[ANT] WARN: Hit strlen max_length"); break; }
   }
   return(i);
 }
 
-static int log_array(const int num, const char name[], const uint32_t array[], const int length) {
+static void log_array(const int num, const char name[], const uint32_t array[], const int length) {
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
   for (int i = 0; i < length; i=(i+5)) {
     k_sleep(K_MSEC(100));
@@ -208,9 +208,12 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
     code = autocorrect_data[state];
     LOG_DBG("[ANT 20] state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
-    log_array(20, "AUTOCORRECT_DATA", autocorrect_data, DICTIONARY_SIZE);
-    log_array(20, "UINT32 STRLEN 1: %d", uint32_t_strlen(autocorrect_data+state+1, DICTIONARY_SIZE), DICTIONARY_SIZE);
-    log_array(20, "UINT32 STRLEN 2: %d", uint32_t_strlen(autocorrect_data[state+1], DICTIONARY_SIZE), DICTIONARY_SIZE);
+    LOG_DBG("[ANT 20] UINT32 STRLEN 1: %d", uint32_t_strlen(autocorrect_data+state+1, DICTIONARY_SIZE));
+    log_array(20,
+              "AUTOCORRECT_DATA Subset",
+              (const uint32_t *)(autocorrect_data+state+1),
+              uint32_t_strlen((const uint32_t *)(autocorrect_data+state+1),
+              DICTIONARY_SIZE - state - 1));
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
@@ -241,6 +244,11 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
            i < uint32_t_strlen(autocorrect_data + state + 1, DICTIONARY_SIZE);
            i++)
       {
+        LOG_DBG("[ANT 23] i: %d/%d, Char: %d [%c]",
+                i,
+                uint32_t_strlen(autocorrect_data + state + 1, DICTIONARY_SIZE),
+                (autocorrect_data + state + 1)[i] & HIGH_BIT_MASK,
+                (char)(((autocorrect_data + state + 1)[i] & HIGH_BIT_MASK) + 61));
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
