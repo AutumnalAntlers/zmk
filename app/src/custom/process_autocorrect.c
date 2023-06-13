@@ -62,7 +62,7 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
 
 bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   const struct zmk_keycode_state_changed *ev = as_zmk_keycode_state_changed(record);
-  static bool log_autocorrect_data = true
+  static bool log_autocorrect_data = true;
   if (log_autocorrect_data) {
     log_array(0, "AUTOCORRECT_DATA", autocorrect_data, DICTIONARY_SIZE);
     log_autocorrect_data = (static const bool)(false)
