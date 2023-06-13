@@ -288,6 +288,9 @@ def write_generated_code(autocorrects: List[Tuple[str, str]],
       return str(d)
     elif ord('A') <= d + 61 <= ord('Z'):
       return str(d)
+    elif True:
+      print("Accepted: " + str(d))
+      return str(d)
     else:
       raise ValueError
 
