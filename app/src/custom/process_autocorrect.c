@@ -42,7 +42,7 @@ static size_t uint32_t_strlen (const uint32_t * array, const int max_length) {
 static void log_array(const size_t num, const char name[], const uint32_t array[], const size_t length) {
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
   for (size_t i = 0; i < length; i=(i+5)) {
-    k_sleep(K_MSEC(100));
+    k_sleep(K_MSEC(1));
     for (size_t j = i; j < (i + 5); j++) {
       if (j < length) {
         LOG_DBG("[ANT %02d %d/%d] %d [%c]", num, j + 1, length, array[j], (char) (array[j] + 61));
@@ -219,6 +219,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       LOG_DBG("[ANT 21] backspaces: %d", backspaces);
       for (int i = 0; i < backspaces; ++i) {
         LOG_DBG("[ANT 22] i: %d", i);
+        const size_t sleep_time = K_MSEC(30)
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
@@ -228,6 +229,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .explicit_modifiers = 0,
               .state = true,
               .timestamp = k_uptime_get()}));
+        k_sleep(sleep_time);
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
@@ -237,6 +239,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .explicit_modifiers = 0,
               .state = false,
               .timestamp = k_uptime_get()}));
+        k_sleep(sleep_time);
       }
 
       for (size_t i = 0; i < correction_length; i++) {
@@ -255,7 +258,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .explicit_modifiers = 0,
               .state = true,
               .timestamp = k_uptime_get()}));
-        k_sleep(K_MSEC(1000)); // TMP
+        k_sleep(sleep_time);
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
@@ -265,6 +268,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .explicit_modifiers = 0,
               .state = false,
               .timestamp = k_uptime_get()}));
+        k_sleep(sleep_time);
       }
 
       if (keycode == 44) {
