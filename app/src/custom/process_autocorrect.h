@@ -9,7 +9,6 @@
 
 bool process_autocorrect(uint32_t keycode, const zmk_event_t *record);
 // bool process_autocorrect_user(uint16_t *keycode, zmk_event_t *record, uint8_t *typo_buffer_size, uint8_t *mods);
-bool apply_autocorrect(uint32_t backspaces, const char *str);
 
 // bool autocorrect_is_enabled(void);
 // void autocorrect_enable(void);
