@@ -180,14 +180,14 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     if (code & (HIGH_BIT_MASK + 1)) { // Check for match in node with multiple children.
       code &= HIGH_BIT_MASK;
       LOG_DBG("[ANT 15 1/3] code: %d", code);
-      for (; code != key_i; code = autocorrect_data + (state += 3)) {
+      for (; code != key_i; code = autocorrect_data[(state += 3)]) {
         LOG_DBG("[ANT 15 2/3] code: %d", code);
         if (!code) return true;
       }
       LOG_DBG("[ANT 15 3/3] code: %d", code);
       // Follow link to child node.
       LOG_DBG("[ANT 16] pre-state: %d", state);
-      state = (autocorrect_data + state + 1) | (autocorrect_data + state + 2) << 8);
+      state = (autocorrect_data[(state + 1)] | autocorrect_data[(state + 2)] << 8);
       LOG_DBG("[ANT 17] post-state: %d", state);
       // Check for match in node with single child.
     } else if (code != key_i) {
