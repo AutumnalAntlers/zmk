@@ -255,7 +255,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .explicit_modifiers = 0,
               .state = true,
               .timestamp = k_uptime_get()}));
-        k_sleep(K_SEC(1)); // TMP
+        k_sleep(K_MSEC(1000)); // TMP
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
