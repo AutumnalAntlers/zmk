@@ -29,21 +29,21 @@ static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
 static const uint32_t HIGH_BIT_MASK = 1073741823; // (2**32 >> 2) - 1
-static const int DICTIONARY_SIZE = sizeof(autocorrect_data) / sizeof(autocorrect_data[0]);
+static const size_t DICTIONARY_SIZE = sizeof(autocorrect_data) / sizeof(autocorrect_data[0]);
 
-static int uint32_t_strlen (const uint32_t * array, const int max_length) {
-  int i = 0;
+static size_t uint32_t_strlen (const uint32_t * array, const int max_length) {
+  size_t i = 0;
   while (array[++i] != (uint32_t)('\0')) {
     if (i >= max_length) { LOG_DBG("[ANT] WARN: Hit strlen max_length"); break; }
   }
   return(i);
 }
 
-static void log_array(const int num, const char name[], const uint32_t array[], const int length) {
+static void log_array(const size_t num, const char name[], const uint32_t array[], const size_t length) {
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
-  for (int i = 0; i < length; i=(i+5)) {
+  for (size_t i = 0; i < length; i=(i+5)) {
     k_sleep(K_MSEC(100));
-    for (int j = i; j < (i + 5); j++) {
+    for (size_t j = i; j < (i + 5); j++) {
       if (j < length) {
         LOG_DBG("[ANT %02d %d/%d] %d [%c]", num, j + 1, length, array[j], (char) (array[j] + 61));
       }
@@ -51,7 +51,7 @@ static void log_array(const int num, const char name[], const uint32_t array[], 
   }
 }
 
-int autocorrect_event_listener(const zmk_event_t *eh) {
+size_t autocorrect_event_listener(const zmk_event_t *eh) {
   const struct zmk_keycode_state_changed *ev = as_zmk_keycode_state_changed(eh);
   if (ev) {
     // count only key up events
@@ -60,6 +60,7 @@ int autocorrect_event_listener(const zmk_event_t *eh) {
       process_autocorrect(ev->keycode, eh);
     }
   }
+  // TODO: Any particular reason to return `size_t' over `bool`? Must we be `bool`?
   return 0;
 }
 
@@ -167,7 +168,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   log_array(13, "TYPO_BUFFER", typo_buffer, typo_buffer_size);
 
   // Check for typo in buffer using a trie stored in `autocorrect_data`.
-  int state = 0;
+  size_t state = 0;
   uint32_t code  = autocorrect_data[state];
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
     LOG_DBG("[ANT 14 1/5] i: %d", i);
@@ -208,14 +209,12 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
     code = autocorrect_data[state];
     LOG_DBG("[ANT 20] state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
-    LOG_DBG("[ANT 20] UINT32 STRLEN 1: %d", uint32_t_strlen(autocorrect_data+state+1, DICTIONARY_SIZE));
-    log_array(20,
-              "AUTOCORRECT_DATA Subset",
-              (const uint32_t *)(autocorrect_data+state+1),
-              uint32_t_strlen((const uint32_t *)(autocorrect_data+state+1),
-              DICTIONARY_SIZE - state - 1));
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
+      const uint32_t correction = autocorrect_data + state + 1
+      const size_t correction_length = uint32_t_strlen(correction, DICTIONARY_SIZE - state - 1)
+      LOG_DBG("[ANT 20] UINT32 STRLEN 1: %d", correction_size);
+      log_array(20, "AUTOCORRECT_DATA Subset", correction, correction_size,);
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
       LOG_DBG("[ANT 21] backspaces: %d", backspaces);
       for (int i = 0; i < backspaces; ++i) {
@@ -240,29 +239,28 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .timestamp = k_uptime_get()}))
       }
 
-      for (int i = 0;
-           i < uint32_t_strlen(autocorrect_data + state + 1, DICTIONARY_SIZE);
-           i++)
-      {
-        LOG_DBG("[ANT 23] i: %d/%d, Char: %d [%c]",
-                i,
-                uint32_t_strlen(autocorrect_data + state + 1, DICTIONARY_SIZE),
-                (autocorrect_data + state + 1)[i] & HIGH_BIT_MASK,
-                (char)(((autocorrect_data + state + 1)[i] & HIGH_BIT_MASK) + 61));
+      for (size_t i = 0; i < correction_size; i++) {
+        const uint32_t kcode = correction[i] & HIGH_BIT_MASK
+        LOG_DBG("[ANT 23 %d/%d] Pressing char: %d [%c]",
+                i + 1,
+                correction_size,
+                kcode,
+                (char)((correction[i] & HIGH_BIT_MASK) + 61));
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
               .usage_page = ev->usage_page,
-              .keycode = (autocorrect_data + state + 1)[i] & HIGH_BIT_MASK,
+              .keycode = kcode,
               .implicit_modifiers = 0,
               .explicit_modifiers = 0,
               .state = true,
               .timestamp = k_uptime_get()}))
+        k_sleep(K_SEC(1)); // TMP
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
               .usage_page = ev->usage_page,
-              .keycode = (autocorrect_data + state + 1)[i] & HIGH_BIT_MASK,
+              .keycode = kcode,
               .implicit_modifiers = 0,
               .explicit_modifiers = 0,
               .state = false,
