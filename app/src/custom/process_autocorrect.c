@@ -136,7 +136,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   // Rotate oldest character if buffer is full.
   if (typo_buffer_size >= AUTOCORRECT_MAX_LENGTH) {
       LOG_DBG("[ANT 10] Rotating buffer (shown pre-truncation)");
-      memmove(typo_buffer, typo_buffer + 1, (AUTOCORRECT_MAX_LENGTH * sizeof(typo_buffer[0])) - 1);
+      memmove(typo_buffer, typo_buffer + 1, (AUTOCORRECT_MAX_LENGTH - 1) * sizeof(typo_buffer[0]));
       LOG_DBG("[ANT 10] typo_buffer_size: %d", typo_buffer_size);
       log_array(10, "TYPO_BUFFER", typo_buffer, typo_buffer_size);
       LOG_DBG("[ANT 10] Truncating buffer");
@@ -225,13 +225,13 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       }
 
       // send_string_P((char const *)(autocorrect_data + state + 1));
-      for (int i = 0; i < (sizeof(autocorrect_data + state) / sizeof(autocorrect_data[0])); i++) {
-        LOG_DBG("[ANT 22.5] i: %d, state: %d, data: %d", i, state, (autocorrect_data + state + 1)[i]);
+      for (int i = 0; i < ((sizeof(autocorrect_data) + (state * sizeof(autocorrect_data[0]))) / sizeof(autocorrect_data[0])); i++) {
+        LOG_DBG("[ANT 22.5] i: %d, state: %d, cap: %s, data: %d", i, state, ((sizeof(autocorrect_data) + (state * sizeof(autocorrect_data[0]))) / sizeof(autocorrect_data[0])), (autocorrect_data + state + 1)[i]);
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
               .usage_page = ev->usage_page,
-              .keycode = (autocorrect_data + state + 1)[i],
+              .keycode = (autocorrect_data + state + 1)[i] & HIGH_BIT_MASK,
               .implicit_modifiers = 0,
               .explicit_modifiers = 0,
               .state = true,
@@ -240,7 +240,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
               .usage_page = ev->usage_page,
-              .keycode = (autocorrect_data + state + 1)[i],
+              .keycode = (autocorrect_data + state + 1)[i] & HIGH_BIT_MASK,
               .implicit_modifiers = 0,
               .explicit_modifiers = 0,
               .state = false,
