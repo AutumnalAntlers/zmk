@@ -169,7 +169,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
   // Check for typo in buffer using a trie stored in `autocorrect_data`.
   size_t state = 0;
-  uint32_t *code  = autocorrect_data + state * sizeof(autocorrect_data[0]);
+  uint32_t code  = autocorrect_data[state * sizeof(autocorrect_data[0])];
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
     LOG_DBG("[ANT 14 1/5] i: %d", i);
     uint32_t const key_i = typo_buffer[i];
