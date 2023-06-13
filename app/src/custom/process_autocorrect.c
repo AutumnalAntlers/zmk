@@ -217,9 +217,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       log_array(20, "AUTOCORRECT_DATA Subset", correction, correction_length);
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
       LOG_DBG("[ANT 21] backspaces: %d", backspaces);
+      const k_timeout_t sleep_time = K_MSEC(30);
       for (int i = 0; i < backspaces; ++i) {
         LOG_DBG("[ANT 22] i: %d", i);
-        const size_t sleep_time = K_MSEC(30)
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
