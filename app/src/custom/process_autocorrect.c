@@ -42,7 +42,7 @@ static size_t uint32_t_strlen (const uint32_t * array, const int max_length) {
 static void log_array(const size_t num, const char name[], const uint32_t array[], const size_t length) {
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
   for (size_t i = 0; i < length; i++) {
-    k_sleep(K_MSEC(15));
+    k_sleep(K_MSEC(14));
     LOG_DBG("[ANT %02d %d/%d] %d [%c]", num, i + 1, length, array[i], (char) (array[i] + 61));
   }
 }
@@ -145,13 +145,13 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   }
 
   LOG_DBG("[ANT 09 0/%d] typo_buffer_size: %d", typo_buffer_size, typo_buffer_size);
-  log_array(9, "TYPO_BUFFER", typo_buffer, typo_buffer_size);
+  // log_array(9, "TYPO_BUFFER", typo_buffer, typo_buffer_size);
   // Rotate oldest character if buffer is full.
   if (typo_buffer_size >= AUTOCORRECT_MAX_LENGTH) {
       LOG_DBG("[ANT 10] Rotating buffer (shown pre-truncation)");
       memmove(typo_buffer, typo_buffer + 1, (AUTOCORRECT_MAX_LENGTH - 1) * sizeof(typo_buffer[0]));
       LOG_DBG("[ANT 10] typo_buffer_size: %d", typo_buffer_size);
-      log_array(10, "TYPO_BUFFER", typo_buffer, typo_buffer_size);
+      // log_array(10, "TYPO_BUFFER", typo_buffer, typo_buffer_size);
       LOG_DBG("[ANT 10] Truncating buffer");
       typo_buffer_size = AUTOCORRECT_MAX_LENGTH - 1;
   }
@@ -160,13 +160,13 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
   // Append `keycode` to buffer.
   typo_buffer[typo_buffer_size++] = keycode;
 
+  log_array(13, "TYPO_BUFFER", typo_buffer, typo_buffer_size);
   // Return if buffer is smaller than the shortest word.
   if (typo_buffer_size < AUTOCORRECT_MIN_LENGTH) {
       LOG_DBG("[ANT 12] Returning early");
       return true;
   }
   LOG_DBG("[ANT 13] typo_buffer_size: %d", typo_buffer_size);
-  log_array(13, "TYPO_BUFFER", typo_buffer, typo_buffer_size);
 
   // Check for typo in buffer using a trie stored in `autocorrect_data`.
   size_t state = 0;
