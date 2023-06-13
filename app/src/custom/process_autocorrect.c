@@ -240,7 +240,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       }
 
       for (size_t i = 0; i < correction_length; i++) {
-        const uint32_t kcode = correction[i] & HIGH_BIT_MASK
+        const uint32_t kcode = correction[i] & HIGH_BIT_MASK;
         LOG_DBG("[ANT 23 %d/%d] Pressing char: %d [%c]",
                 i + 1,
                 correction_length,
