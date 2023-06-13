@@ -211,10 +211,10 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     LOG_DBG("[ANT 20] state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
-      const uint32_t correction = autocorrect_data + state + 1
-      const size_t correction_length = uint32_t_strlen(correction, DICTIONARY_SIZE - state - 1)
-      LOG_DBG("[ANT 20] UINT32 STRLEN 1: %d", correction_size);
-      log_array(20, "AUTOCORRECT_DATA Subset", correction, correction_size,);
+      const uint32_t *correction = autocorrect_data + state + 1;
+      const size_t correction_length = uint32_t_strlen(correction, DICTIONARY_SIZE - state - 1);
+      LOG_DBG("[ANT 20] UINT32 STRLEN 1: %d", correction_length);
+      log_array(20, "AUTOCORRECT_DATA Subset", correction, correction_length);
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
       LOG_DBG("[ANT 21] backspaces: %d", backspaces);
       for (int i = 0; i < backspaces; ++i) {
@@ -227,7 +227,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .implicit_modifiers = 0,
               .explicit_modifiers = 0,
               .state = true,
-              .timestamp = k_uptime_get()}))
+              .timestamp = k_uptime_get()}));
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
@@ -236,14 +236,14 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .implicit_modifiers = 0,
               .explicit_modifiers = 0,
               .state = false,
-              .timestamp = k_uptime_get()}))
+              .timestamp = k_uptime_get()}));
       }
 
-      for (size_t i = 0; i < correction_size; i++) {
+      for (size_t i = 0; i < correction_length; i++) {
         const uint32_t kcode = correction[i] & HIGH_BIT_MASK
         LOG_DBG("[ANT 23 %d/%d] Pressing char: %d [%c]",
                 i + 1,
-                correction_size,
+                correction_length,
                 kcode,
                 (char)((correction[i] & HIGH_BIT_MASK) + 61));
         ZMK_EVENT_RAISE(
@@ -254,7 +254,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .implicit_modifiers = 0,
               .explicit_modifiers = 0,
               .state = true,
-              .timestamp = k_uptime_get()}))
+              .timestamp = k_uptime_get()}));
         k_sleep(K_SEC(1)); // TMP
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
@@ -264,7 +264,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .implicit_modifiers = 0,
               .explicit_modifiers = 0,
               .state = false,
-              .timestamp = k_uptime_get()}))
+              .timestamp = k_uptime_get()}));
       }
 
       if (keycode == 44) {
