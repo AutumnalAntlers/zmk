@@ -29,6 +29,14 @@ const uint32_t HIGH_BIT_MASK = 1073741823; // (2**32 >> 2) - 1
 static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
+uint32 uint32_strlen (const uint32 * array, const int max_length) {
+  uint32 i = 0;
+  while (array[++i] != (uint32)('\0')) {
+    if (i >= max_length) { break; }
+  }
+  return(i);
+}
+
 int log_array(int num, char name[], uint32_t array[], int length) {
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
   for (int i = 0; i < length; i=(i+5)) {
@@ -136,7 +144,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       return true;
   }
 
-  LOG_DBG("[ANT 09 0/%d] typo_buffer_size: %d", typo_buffer_size + 1, typo_buffer_size);
+  LOG_DBG("[ANT 09 0/%d] typo_buffer_size: %d", typo_buffer_size, typo_buffer_size);
   log_array(9, "TYPO_BUFFER", typo_buffer, typo_buffer_size);
   // Rotate oldest character if buffer is full.
   if (typo_buffer_size >= AUTOCORRECT_MAX_LENGTH) {
@@ -202,7 +210,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
     code = autocorrect_data[state];
     LOG_DBG("[ANT 20] state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
-    log_array(20, "AUTOCORRECT_DATA", autocorrect_data, sizeof(autocorrect_data));
+    log_array(20, "AUTOCORRECT_DATA", autocorrect_data, (sizeof(autocorrect_data) / sizeof(autocorrect_data[0])));
+    log_array(20.5, "UINT32 STRLEN: %d", uint32_strlen(autocorrect_data+state+1, (sizeof(autocorrect_data) / sizeof(autocorrect_data[0]))));
+    log_array(20.5, "UINT32 STRLEN: %d", uint32_strlen(autocorrect_data[state+1], (sizeof(autocorrect_data) / sizeof(autocorrect_data[0]))));
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
@@ -229,10 +239,13 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
               .timestamp = k_uptime_get()}))
       }
 
-      // send_string_P((char const *)(autocorrect_data + state + 1));
-      // for (int i = 0; i < ((sizeof(autocorrect_data) + (state * sizeof(autocorrect_data[0]))) / sizeof(autocorrect_data[0])); i++) {
-      //   LOG_DBG("[ANT 22.5] i: %d, state: %d, cap: %s, data: %d", i, state, ((sizeof(autocorrect_data) + (state * sizeof(autocorrect_data[0]))) / sizeof(autocorrect_data[0])), (autocorrect_data + state + 1)[i]);
-      for (int i = 0; i < strlen((char const *)(autocorrect_data + state + 1)); i++) {
+      for (int i = 0;
+           i < uint32_strlen(
+                 autocorrect_data + state + 1,
+                 (sizeof(autocorrect_data) + (state * sizeof(autocorrect_data[0])))
+               );
+           i++)
+      {
         ZMK_EVENT_RAISE(
           new_zmk_keycode_state_changed(
             (struct zmk_keycode_state_changed){
