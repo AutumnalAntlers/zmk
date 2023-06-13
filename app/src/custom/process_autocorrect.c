@@ -29,15 +29,15 @@ const uint32_t HIGH_BIT_MASK = 1073741823; // (2**32 >> 2) - 1
 static uint32_t typo_buffer[AUTOCORRECT_MAX_LENGTH] = {SPACE};
 static uint32_t typo_buffer_size                    = 1;
 
-uint32 uint32_strlen (const uint32 * array, const int max_length) {
-  uint32 i = 0;
-  while (array[++i] != (uint32)('\0')) {
+uint32_t uint32_t_strlen (const uint32_t * array, const int max_length) {
+  int i = 0;
+  while (array[++i] != (uint32_t)('\0')) {
     if (i >= max_length) { break; }
   }
   return(i);
 }
 
-int log_array(int num, char name[], uint32_t array[], int length) {
+int log_array(const int num, const char name[], const uint32_t array[], const int length) {
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
   for (int i = 0; i < length; i=(i+5)) {
     k_sleep(K_MSEC(100));
@@ -211,8 +211,8 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     code = autocorrect_data[state];
     LOG_DBG("[ANT 20] state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
     log_array(20, "AUTOCORRECT_DATA", autocorrect_data, (sizeof(autocorrect_data) / sizeof(autocorrect_data[0])));
-    log_array(20.5, "UINT32 STRLEN: %d", uint32_strlen(autocorrect_data+state+1, (sizeof(autocorrect_data) / sizeof(autocorrect_data[0]))));
-    log_array(20.5, "UINT32 STRLEN: %d", uint32_strlen(autocorrect_data[state+1], (sizeof(autocorrect_data) / sizeof(autocorrect_data[0]))));
+    log_array(20, "UINT32 STRLEN 1: %d", uint32_t_strlen(autocorrect_data+state+1), (sizeof(autocorrect_data) / sizeof(autocorrect_data[0])));
+    log_array(20, "UINT32 STRLEN 2: %d", uint32_t_strlen(autocorrect_data[state+1]), (sizeof(autocorrect_data) / sizeof(autocorrect_data[0])));
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
@@ -240,7 +240,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       }
 
       for (int i = 0;
-           i < uint32_strlen(
+           i < uint32_t_strlen(
                  autocorrect_data + state + 1,
                  (sizeof(autocorrect_data) + (state * sizeof(autocorrect_data[0])))
                );
