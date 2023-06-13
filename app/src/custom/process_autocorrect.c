@@ -180,14 +180,14 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     if (code & (HIGH_BIT_MASK + 1)) { // Check for match in node with multiple children.
       code &= HIGH_BIT_MASK;
       LOG_DBG("[ANT 15 1/3] code: %d", code);
-      for (; code != key_i; code = autocorrect_data[(state += 3)]) {
+      for (; code != key_i; code = autocorrect_data + (state += 3)) {
         LOG_DBG("[ANT 15 2/3] code: %d", code);
         if (!code) return true;
       }
       LOG_DBG("[ANT 15 3/3] code: %d", code);
       // Follow link to child node.
       LOG_DBG("[ANT 16] pre-state: %d", state);
-      state = (autocorrect_data[(state + 1)] | autocorrect_data[(state + 2)] << 8);
+      state = (autocorrect_data + state + 1) | (autocorrect_data + state + 2) << 8);
       LOG_DBG("[ANT 17] post-state: %d", state);
       // Check for match in node with single child.
     } else if (code != key_i) {
@@ -217,58 +217,35 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       log_array(20, "AUTOCORRECT_DATA Subset", correction, correction_length);
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
       LOG_DBG("[ANT 21] backspaces: %d", backspaces);
-      const k_timeout_t sleep_time = K_MSEC(30);
-      for (int i = 0; i < backspaces; ++i) {
-        LOG_DBG("[ANT 22] i: %d", i);
-        ZMK_EVENT_RAISE(
-          new_zmk_keycode_state_changed(
-            (struct zmk_keycode_state_changed){
-              .usage_page = ev->usage_page,
-              .keycode = 42,
-              .implicit_modifiers = 0,
-              .explicit_modifiers = 0,
-              .state = true,
-              .timestamp = k_uptime_get()}));
-        k_sleep(sleep_time);
-        ZMK_EVENT_RAISE(
-          new_zmk_keycode_state_changed(
-            (struct zmk_keycode_state_changed){
-              .usage_page = ev->usage_page,
-              .keycode = 42,
-              .implicit_modifiers = 0,
-              .explicit_modifiers = 0,
-              .state = false,
-              .timestamp = k_uptime_get()}));
-        k_sleep(sleep_time);
+      const k_timeout_t sleep_time = K_MSEC(10);
+      static const void tap_key (const uint32_t keycode) {
+        static const void set_key (const uint32_t keycode, const bool state) {
+          ZMK_EVENT_RAISE(
+            new_zmk_keycode_state_changed(
+              (struct zmk_keycode_state_changed){
+                .usage_page = ev->usage_page,
+                .keycode = keycode,
+                .implicit_modifiers = 0,
+                .explicit_modifiers = 0,
+                .state = state,
+                .timestamp = k_uptime_get()}));
+          k_sleep(sleep_time);
+        }
+        set_key(keycode, 0);
+        set_key(keycode, 1);
+        set_key(keycode, 0);
       }
 
+      for (int i = 0; i < backspaces; ++i) { tap_key(42); }
+
       for (size_t i = 0; i < correction_length; i++) {
-        const uint32_t kcode = correction[i] & HIGH_BIT_MASK;
+        const uint32_t keycode = correction[i] & HIGH_BIT_MASK;
         LOG_DBG("[ANT 23 %d/%d] Pressing char: %d [%c]",
                 i + 1,
                 correction_length,
-                kcode,
+                keycode,
                 (char)((correction[i] & HIGH_BIT_MASK) + 61));
-        ZMK_EVENT_RAISE(
-          new_zmk_keycode_state_changed(
-            (struct zmk_keycode_state_changed){
-              .usage_page = ev->usage_page,
-              .keycode = kcode,
-              .implicit_modifiers = 0,
-              .explicit_modifiers = 0,
-              .state = true,
-              .timestamp = k_uptime_get()}));
-        k_sleep(sleep_time);
-        ZMK_EVENT_RAISE(
-          new_zmk_keycode_state_changed(
-            (struct zmk_keycode_state_changed){
-              .usage_page = ev->usage_page,
-              .keycode = kcode,
-              .implicit_modifiers = 0,
-              .explicit_modifiers = 0,
-              .state = false,
-              .timestamp = k_uptime_get()}));
-        k_sleep(sleep_time);
+        tap_key(keycode)
       }
 
       if (keycode == 44) {
