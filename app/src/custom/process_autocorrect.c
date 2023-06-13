@@ -245,7 +245,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
                 correction_length,
                 keycode,
                 (char)((correction[i] & HIGH_BIT_MASK) + 61));
-        tap_key(keycode)
+        tap_key(keycode);
       }
 
       if (keycode == 44) {
