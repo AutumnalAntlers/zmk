@@ -169,7 +169,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
 
   // Check for typo in buffer using a trie stored in `autocorrect_data`.
   size_t state = 0;
-  uint32_t code  = autocorrect_data + state * sizeof(autocorrect_data[0]);
+  uint32_t *code  = autocorrect_data + state * sizeof(autocorrect_data[0]);
   for (uint32_t i = typo_buffer_size - 1; i >= 0; --i) {
     LOG_DBG("[ANT 14 1/5] i: %d", i);
     uint32_t const key_i = typo_buffer[i];
@@ -187,14 +187,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       LOG_DBG("[ANT 15 3/3] code: %d", code);
       // Follow link to child node.
       LOG_DBG("[ANT 16] pre-state: %d", state);
-      state = (autocorrect_data[(state + 1 * sizeof(autocorrect_data[0]))] | autocorrect_data[(state + 2 * sizeof(autocorrect_data[0]))] << 32);
-      LOG_DBG("[ANT 16.5] %d %d %d %d %d",
-          (autocorrect_data[(state + 1 * sizeof(autocorrect_data[0]))] | autocorrect_data[(state + 2 * sizeof(autocorrect_data[0]))] << 2),
-          (autocorrect_data[(state + 1 * sizeof(autocorrect_data[0]))] | autocorrect_data[(state + 2 * sizeof(autocorrect_data[0]))] << 4),
-          (autocorrect_data[(state + 1 * sizeof(autocorrect_data[0]))] | autocorrect_data[(state + 2 * sizeof(autocorrect_data[0]))] << 8),
-          (autocorrect_data[(state + 1 * sizeof(autocorrect_data[0]))] | autocorrect_data[(state + 2 * sizeof(autocorrect_data[0]))] << 16),
-          (autocorrect_data[(state + 1 * sizeof(autocorrect_data[0]))] | autocorrect_data[(state + 2 * sizeof(autocorrect_data[0]))] << 32)
-          );
+      state = (autocorrect_data[(state + 1 * sizeof(autocorrect_data[0]))] | autocorrect_data[(state + 2 * sizeof(autocorrect_data[0]))] << 8);
       LOG_DBG("[ANT 17] post-state: %d", state);
       // Check for match in node with single child.
     } else if (code != key_i) {
@@ -202,7 +195,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       return true;
     } else if (!(code = autocorrect_data[state + sizeof(autocorrect_data[0])])) {
       LOG_DBG("[ANT 19] pre-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
-      state = state + sizeof(autocorrect_data[0]) * 2
+      state = state + sizeof(autocorrect_data[0]) * 2;
       LOG_DBG("[ANT 19] post-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
     }
 
