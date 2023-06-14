@@ -39,7 +39,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         return ZMK_BEHAVIOR_OPAQUE;
     }
 
-    uint32_t *keycode = &data->current_keycode_pressed.keycode
+    uint32_t *keycode = &data->current_keycode_pressed.keycode;
     LOG_DBG("[ANT 0/2] %d", (uint32_t)((int)'A' - 61));
     LOG_DBG("[ANT 1/2] keycode: %d [*%d]", keycode, *keycode);
     switch (*keycode) {
