@@ -41,7 +41,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
 
     uint32_t *keycode = &data->current_keycode_pressed.keycode
     switch (*keycode) {
-      case (uint32_t)('A'): *keycode = (uint32_t)('O');
+      case (uint32_t)((int)'A' - 61): *keycode = (uint32_t)('O');
     }
 
     memcpy(&data->current_keycode_pressed, &data->last_keycode_pressed,
