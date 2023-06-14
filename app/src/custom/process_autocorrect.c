@@ -42,8 +42,8 @@ static size_t uint32_t_strlen (const uint32_t * array, const int max_length) {
 static void log_array(const size_t num, const char name[], const uint32_t array[], const size_t length) {
   LOG_DBG("[ANT %02d] Log Array: %s", num, name);
   for (size_t i = 0; i < length; i++) {
-    k_sleep(K_MSEC(14));
     LOG_DBG("[ANT %02d %d/%d] %d [%c]", num, i + 1, length, array[i], (char) (array[i] + 61));
+    k_sleep(K_MSEC(15));
   }
 }
 
@@ -213,12 +213,14 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     LOG_DBG("[ANT 20] state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
+      k_sleep(K_MSEC(15));
       const uint32_t *correction = autocorrect_data + state + 1;
       const size_t correction_length = uint32_t_strlen(correction, sizeof(autocorrect_data[0]) * DICTIONARY_SIZE - state - 1);
       LOG_DBG("[ANT 20] UINT32 STRLEN 1: %d", correction_length);
       log_array(20, "AUTOCORRECT_DATA Subset", correction, correction_length);
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
       LOG_DBG("[ANT 21] backspaces: %d", backspaces);
+      k_sleep(K_MSEC(15));
       const k_timeout_t sleep_time = K_MSEC(10);
       void tap_key (const uint32_t keycode) {
         void set_key (const uint32_t keycode, const bool state) {
