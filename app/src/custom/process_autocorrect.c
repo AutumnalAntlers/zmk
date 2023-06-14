@@ -195,9 +195,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     } else if (code != key_i) {
       LOG_DBG("[ANT 18] No match");
       return true;
-    } else if (!(code = autocorrect_data[(state++)])) {
+    } else if (!(code = autocorrect_data[(++state)])) {
       LOG_DBG("[ANT 19] pre-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
-      state++;
+      ++state;
       LOG_DBG("[ANT 19] post-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
     }
 
