@@ -219,8 +219,9 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       LOG_DBG("[ANT 20] UINT32 STRLEN 1: %d", correction_length);
       log_array(20, "AUTOCORRECT_DATA Subset", correction, correction_length);
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
+      k_sleep(K_MSEC(100));
       LOG_DBG("[ANT 21] backspaces: %d", backspaces);
-      k_sleep(K_MSEC(15));
+      k_sleep(K_MSEC(100));
       const k_timeout_t sleep_time = K_MSEC(10);
       void tap_key (const uint32_t keycode) {
         void set_key (const uint32_t keycode, const bool state) {
