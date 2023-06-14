@@ -197,7 +197,7 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       return true;
     } else if (!(code = autocorrect_data[state + sizeof(autocorrect_data[0])])) {
       LOG_DBG("[ANT 19] pre-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
-      state = state + sizeof(autocorrect_data[0]) * 2;
+      state = state + 2;
       LOG_DBG("[ANT 19] post-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
     }
 
