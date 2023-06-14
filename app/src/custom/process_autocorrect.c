@@ -189,22 +189,22 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       LOG_DBG("[ANT 15 3/3] code: %d", code);
       // Follow link to child node.
       LOG_DBG("[ANT 16] pre-state: %d", state);
-      state = (autocorrect_data[(state + 1 * sizeof(autocorrect_data[0]))] | autocorrect_data[(state + 2 * sizeof(autocorrect_data[0]))] << 8);
+      state = (autocorrect_data[(state + 1)] | autocorrect_data[(state + 2)] << 8);
       LOG_DBG("[ANT 17] post-state: %d", state);
       // Check for match in node with single child.
     } else if (code != key_i) {
       LOG_DBG("[ANT 18] No match");
       return true;
-    } else if (!(code = autocorrect_data[state + sizeof(autocorrect_data[0])])) {
+    } else if (!(code = autocorrect_data[(state++)])) {
       LOG_DBG("[ANT 19] pre-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
-      state = state + 2;
+      state++;
       LOG_DBG("[ANT 19] post-state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
     }
 
     // Stop if `state` becomes an invalid index. This should not normally
     // happen, it is a safeguard in case of a bug, data corruption, etc.
-    LOG_DBG("[ANT 19.5] max_state: %d", DICTIONARY_SIZE * sizeof(autocorrect_data[0]));
-    if (state >= (DICTIONARY_SIZE * sizeof(autocorrect_data[0]))) {
+    LOG_DBG("[ANT 19.5] max_state: %d", DICTIONARY_SIZE);
+    if (state >= DICTIONARY_SIZE) {
       LOG_DBG("[ANT 19.5] Error: state too big (%d)", state);
       return true;
     }
@@ -213,8 +213,8 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
     LOG_DBG("[ANT 20] state: %d, code: %d, data: %d", state, code, autocorrect_data[state]);
 
     if (code & (2 * (HIGH_BIT_MASK + 1))) { // A typo was found! Apply autocorrect.
-      const uint32_t *correction = autocorrect_data + state + sizeof(autocorrect_data[0]);
-      const size_t correction_length = uint32_t_strlen(correction, sizeof(autocorrect_data[0]) * DICTIONARY_SIZE - state - sizeof(autocorrect_data[0]));
+      const uint32_t *correction = autocorrect_data + state + 1;
+      const size_t correction_length = uint32_t_strlen(correction, sizeof(autocorrect_data[0]) * DICTIONARY_SIZE - state - 1);
       LOG_DBG("[ANT 20] UINT32 STRLEN 1: %d", correction_length);
       log_array(20, "AUTOCORRECT_DATA Subset", correction, correction_length);
       const uint32_t backspaces = (code & HIGH_BIT_MASK); // + !record->event.pressed;
@@ -262,8 +262,8 @@ bool process_autocorrect(uint32_t keycode, const zmk_event_t *record) {
       }
     }
   }
-  return true;
   LOG_DBG("[ANT 25]");
+  return true;
 }
 
 ZMK_LISTENER(autocorrect, autocorrect_event_listener);
