@@ -39,17 +39,18 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         return ZMK_BEHAVIOR_OPAQUE;
     }
 
-    uint32_t *keycode = &data->current_keycode_pressed.keycode;
-    LOG_DBG("[ANT 0/2] %d", (uint32_t)((int)'A' - 61));
-    LOG_DBG("[ANT 1/2] keycode: %d [*%d]", keycode, *keycode);
-    switch ((char)((int)*keycode - 61)) {
-      case 'A': *keycode = (uint32_t)((int)'O' - 61);
-    }
-    LOG_DBG("[ANT 2/2] keycode: %d", *keycode);
-    &data->last_keycode_pressed.keycode = *keycode
 
     memcpy(&data->current_keycode_pressed, &data->last_keycode_pressed,
            sizeof(struct zmk_keycode_state_changed));
+
+    uint32_t *keycode = &data->current_keycode_pressed.keycode;
+    LOG_DBG("[ANT 1/2] keycode: %d", *keycode);
+    switch ((char)((int)*keycode + 61)) {
+      case 'A': *keycode = 'O';
+    }
+    LOG_DBG("[ANT 2/2] keycode: %d", (uint32_t)((int)*keycode - 61));
+    data->current_keycode_pressed.keycode = (uint32_t)((int)*keycode - 61);
+
     // TODO: What's up with these timestamps?
     data->current_keycode_pressed.timestamp = k_uptime_get();
 
