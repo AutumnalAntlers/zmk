@@ -15,6 +15,8 @@
 #include <zmk/event_manager.h>
 #include <zmk/events/keycode_state_changed.h>
 
+#include <zephyr/kernel.h>
+
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #if DT_HAS_COMPAT_STATUS_OKAY(DT_DRV_COMPAT)
@@ -39,22 +41,54 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         return ZMK_BEHAVIOR_OPAQUE;
     }
 
-
     memcpy(&data->current_keycode_pressed, &data->last_keycode_pressed,
            sizeof(struct zmk_keycode_state_changed));
 
-    uint32_t *keycode = &data->current_keycode_pressed.keycode;
-    LOG_DBG("[ANT 1/2] keycode: %d", *keycode);
-    switch ((char)((int)*keycode + 61)) {
-      case 'A': *keycode = 'O';
+    void tap_key (const char c) {
+      data->current_keycode_pressed.keycode = (uint32_t)((int)char - 61);
+      // TODO: What's up with these timestamps?
+      data->current_keycode_pressed.timestamp = k_uptime_get();
+      ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
     }
-    LOG_DBG("[ANT 2/2] keycode: %d", (uint32_t)((int)*keycode - 61));
-    data->current_keycode_pressed.keycode = (uint32_t)((int)*keycode - 61);
 
-    // TODO: What's up with these timestamps?
-    data->current_keycode_pressed.timestamp = k_uptime_get();
+    void tap_keys (const char* str) {
+      for (size_t i=0; i < strlen(str); i++) {
+        tap_key(str[i]);
+        k_sleep(K_MSEC('10'))
+        if (i != ( strlen(str) - 1 )); {
+          data->current_keycode_pressed.timestamp = k_uptime_get();
+          data->current_keycode_pressed.state = false;
+          ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
+        }
+      }
+    }
 
-    ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
+    switch ((char)((int)data->current_keycode_pressed.keycode + 61)) {
+      case 'A': tap_key('O'); break;
+      case 'C': tap_key('Y'); break;
+      case 'D': tap_key('Y'); break;
+      case 'E': tap_key('U'); break;
+      case 'G': tap_key('Y'); break;
+      case 'I': tap_keys("ON"); break;
+      case 'L': tap_key('K'); break;
+      case 'M': tap_keys("MENT"); break;
+      case 'N': tap_keys("ION"); break;
+      case 'O': tap_key('A'); break;
+      case 'P': tap_key('Y'); break;
+      case 'Q': tap_key("UEN"); break;
+      case 'R': tap_key('L'); break;
+      case 'S': tap_key('K'); break;
+      case 'T': tap_keys("MENT"); break;
+      case 'U': tap_key('E'); break;
+      case 'Y': tap_key('P'); break;
+      case (44 + 61): tap_keys("THE"); break; // ' '
+      // XXX: Need to know ZMK keycode for '/'
+      // case (55 + 61): tap_keys([(55 + 61), (), '\0']); break; // '.'
+      case (32 + 61): tap_keys("INCLUDE"); break; // '#'
+      default:
+        data->current_keycode_pressed.timestamp = k_uptime_get();
+        ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
+    }
 
     return ZMK_BEHAVIOR_OPAQUE;
 }
