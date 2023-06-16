@@ -45,9 +45,10 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
            sizeof(struct zmk_keycode_state_changed));
 
     void tap_key (const char c) {
-      data->current_keycode_pressed.keycode = (uint32_t)((int)c - 61);
       // TODO: What's up with these timestamps?
       data->current_keycode_pressed.timestamp = k_uptime_get();
+      data->current_keycode_pressed.keycode = (uint32_t)((int)c - 61);
+      data->current_keycode_pressed.state = true;
       ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
     }
 
