@@ -54,7 +54,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
     void tap_keys (const char* str) {
       for (size_t i=0; i < strlen(str); i++) {
         tap_key(str[i]);
-        k_sleep(K_MSEC('10'));
+        k_sleep(K_MSEC('40'));
         if (i != ( strlen(str) - 1 )); {
           data->current_keycode_pressed.timestamp = k_uptime_get();
           data->current_keycode_pressed.state = false;
