@@ -64,31 +64,36 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
       }
     }
 
-    switch ((char)((int)data->current_keycode_pressed.keycode + 61)) {
-      case 'A': tap_key('O'); break;
-      case 'C': tap_key('Y'); break;
-      case 'D': tap_key('Y'); break;
-      case 'E': tap_key('U'); break;
-      case 'G': tap_key('Y'); break;
-      case 'I': tap_keys("ON"); break;
-      case 'L': tap_key('K'); break;
-      case 'M': tap_keys("MENT"); break;
-      case 'N': tap_keys("ION"); break;
-      case 'O': tap_key('A'); break;
-      case 'P': tap_key('Y'); break;
-      case 'Q': tap_key("UEN"); break;
-      case 'R': tap_key('L'); break;
-      case 'S': tap_key('K'); break;
-      case 'T': tap_keys("MENT"); break;
-      case 'U': tap_key('E'); break;
-      case 'Y': tap_key('P'); break;
-      case (44 + 61): tap_keys("THE"); break; // ' '
-      // XXX: Need to know ZMK keycode for '/'
-      // case (55 + 61): tap_keys([(55 + 61), (), '\0']); break; // '.'
-      case (32 + 61): tap_keys("INCLUDE"); break; // '#'
-      default:
-        data->current_keycode_pressed.timestamp = k_uptime_get();
-        ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
+    if (&data->current_keycode_pressed.keycode == &data->last_keycode_pressed.keycode) {
+      tap_key('N');
+    } else {
+      switch ((char)((int)data->current_keycode_pressed.keycode + 61)) {
+        case 'A': tap_key('O'); break;
+        case 'C': tap_key('Y'); break;
+        case 'D': tap_key('Y'); break;
+        case 'E': tap_key('U'); break;
+        case 'G': tap_key('Y'); break;
+        case 'I': tap_keys("ON"); break;
+        case 'L': tap_key('K'); break;
+        case 'M': tap_keys("MENT"); break;
+        case 'N': tap_keys("ION"); break;
+        case 'O': tap_key('A'); break;
+        case 'P': tap_key('Y'); break;
+        case 'Q': tap_key("UEN"); break;
+        case 'R': tap_key('L'); break;
+        case 'S': tap_key('K'); break;
+        case 'T': tap_keys("MENT"); break;
+        case 'U': tap_key('E'); break;
+        case 'Y': tap_key('P'); break;
+        // XXX: Need to know ZMK keycodes for '\t' & '\n'
+        case (44 + 61): tap_keys("THE"); break; // ' '
+        // XXX: Need to know ZMK keycode for '/'
+        // case (55 + 61): tap_keys([(55 + 61), (), '\0']); break; // '.'
+        case (32 + 61): tap_keys("INCLUDE"); break; // '#'
+        default:
+          data->current_keycode_pressed.timestamp = k_uptime_get();
+          ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
+      }
     }
 
     return ZMK_BEHAVIOR_OPAQUE;
