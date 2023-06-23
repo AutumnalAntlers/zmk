@@ -60,6 +60,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
           data->current_keycode_pressed.timestamp = k_uptime_get();
           data->current_keycode_pressed.state = false;
           ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
+          k_sleep(K_USEC('1'));
         }
       }
     }
