@@ -55,17 +55,17 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
     void tap_keys (const char* str) {
       for (size_t i=0; i < strlen(str); i++) {
         tap_key(str[i]);
-        k_sleep(K_USEC('1'));
+        k_sleep(K_USEC('30'));
         if (i != ( strlen(str) - 1 )); {
           data->current_keycode_pressed.timestamp = k_uptime_get();
           data->current_keycode_pressed.state = false;
           ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
-          k_sleep(K_USEC('1'));
+          k_sleep(K_USEC('30'));
         }
       }
     }
 
-    if (&data->current_keycode_pressed.keycode == &data->last_keycode_pressed.keycode) {
+    if (data->current_keycode_pressed.keycode == data->last_keycode_pressed.keycode) {
       tap_key('N');
     } else {
       switch ((char)((int)data->current_keycode_pressed.keycode + 61)) {
