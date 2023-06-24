@@ -52,6 +52,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
       data->current_keycode_pressed.timestamp = last_tap_timestamp;
       data->current_keycode_pressed.keycode = (uint32_t)((int)c - 61);
       data->current_keycode_pressed.state = true;
+      LOG_DBG("[ANT] Raising %c down-press at %d", c, last_tap_timestamp);
       ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
     }
 
@@ -63,12 +64,19 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
           last_tap_timestamp = k_uptime_get();
           data->current_keycode_pressed.timestamp = last_tap_timestamp;
           data->current_keycode_pressed.state = false;
+          LOG_DBG("[ANT] Raising %c release at %d", (char)(data->current_keycode_pressed.keycode + 61), last_tap_timestamp);
           ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
           k_sleep(K_USEC('30'));
         }
       }
     }
 
+    LOG_DBG("[ANT] Comparing timestamps of: %c @ %d, %c @ %d (explicit last_tap_timestamp = %d)",
+        (char)(data->current_keycode_pressed.keycode + 61),
+        data->current_keycode_pressed.timestamp,
+        (char)(data->last_keycode_pressed.keycode + 61),
+        data->last_keycode_pressed.timestamp,
+        last_tap_timestamp);
     if (data->last_keycode_pressed.timestamp == last_tap_timestamp) {
       tap_key('N');
     } else {
@@ -117,6 +125,7 @@ static int on_key_repeat_binding_released(struct zmk_behavior_binding *binding,
     last_tap_timestamp = k_uptime_get();
     data->current_keycode_pressed.timestamp = last_tap_timestamp;
     data->current_keycode_pressed.state = false;
+    LOG_DBG("[ANT] Raising %c release at %d", (char)(data->current_keycode_pressed.keycode + 61), last_tap_timestamp);
 
     ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
     return ZMK_BEHAVIOR_OPAQUE;
