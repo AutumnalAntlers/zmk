@@ -32,6 +32,8 @@ struct behavior_key_repeat_data {
     struct zmk_keycode_state_changed current_keycode_pressed;
 };
 
+static int64_t last_tap_timestamp
+
 static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
                                          struct zmk_behavior_binding_event event) {
     const struct device *dev = device_get_binding(binding->behavior_dev);
@@ -46,7 +48,8 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
 
     void tap_key (const char c) {
       // TODO: What's up with these timestamps?
-      data->current_keycode_pressed.timestamp = k_uptime_get();
+      last_tap_timestamp = k_uptime_get();
+      data->current_keycode_pressed.timestamp = last_tap_timestamp;
       data->current_keycode_pressed.keycode = (uint32_t)((int)c - 61);
       data->current_keycode_pressed.state = true;
       ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
@@ -57,7 +60,8 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         tap_key(str[i]);
         k_sleep(K_USEC('30'));
         if (i != ( strlen(str) - 1 )); {
-          data->current_keycode_pressed.timestamp = k_uptime_get();
+          last_tap_timestamp = k_uptime_get();
+          data->current_keycode_pressed.timestamp = last_tap_timestamp;
           data->current_keycode_pressed.state = false;
           ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
           k_sleep(K_USEC('30'));
@@ -65,7 +69,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
       }
     }
 
-    if (data->current_keycode_pressed.keycode == data->last_keycode_pressed.keycode) {
+    if (data->last_keycode_pressed.timestamp == last_tap_timestamp) {
       tap_key('N');
     } else {
       switch ((char)((int)data->current_keycode_pressed.keycode + 61)) {
@@ -92,8 +96,9 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         // case (55 + 61): tap_keys([(55 + 61), (), '\0']); break; // '.'
         case (32 + 61): tap_keys("INCLUDE"); break; // '#'
         default:
-          data->current_keycode_pressed.timestamp = k_uptime_get();
-          ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
+          tap_key('N');
+          // data->current_keycode_pressed.timestamp = k_uptime_get();
+          // ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
       }
     }
 
@@ -109,7 +114,8 @@ static int on_key_repeat_binding_released(struct zmk_behavior_binding *binding,
         return ZMK_BEHAVIOR_OPAQUE;
     }
 
-    data->current_keycode_pressed.timestamp = k_uptime_get();
+    last_tap_timestamp = k_uptime_get();
+    data->current_keycode_pressed.timestamp = last_tap_timestamp;
     data->current_keycode_pressed.state = false;
 
     ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
