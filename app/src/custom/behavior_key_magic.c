@@ -32,7 +32,7 @@ struct behavior_key_repeat_data {
     struct zmk_keycode_state_changed current_keycode_pressed;
 };
 
-int64_t last_tap_timestamp;
+int64_t last_tap_timestamp = 0;
 
 static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
                                          struct zmk_behavior_binding_event event) {
