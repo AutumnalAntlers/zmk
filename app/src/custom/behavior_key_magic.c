@@ -52,26 +52,26 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
       data->current_keycode_pressed.timestamp = last_tap_timestamp;
       data->current_keycode_pressed.keycode = (uint32_t)((int)c - 61);
       data->current_keycode_pressed.state = true;
-      LOG_DBG("[ANT] Raising %c down-press at %d", c, last_tap_timestamp);
+      LOG_DBG("[ANT] Raising %c down-press at %lli", c, last_tap_timestamp);
       ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
     }
 
     void tap_keys (const char* str) {
       for (size_t i=0; i < strlen(str); i++) {
         tap_key(str[i]);
-        k_sleep(K_USEC('30'));
+        k_sleep(K_MSEC(30));
         if (i != ( strlen(str) - 1 )); {
           last_tap_timestamp = k_uptime_get();
           data->current_keycode_pressed.timestamp = last_tap_timestamp;
           data->current_keycode_pressed.state = false;
-          LOG_DBG("[ANT] Raising %c release at %d", (char)(data->current_keycode_pressed.keycode + 61), last_tap_timestamp);
+          LOG_DBG("[ANT] Raising %c release at %lli", (char)(data->current_keycode_pressed.keycode + 61), last_tap_timestamp);
           ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
-          k_sleep(K_USEC('30'));
+          k_sleep(K_MSEC(30));
         }
       }
     }
 
-    LOG_DBG("[ANT] Comparing timestamps of: %c @ %d, %d @ %d (explicit timestamp: %d)",
+    LOG_DBG("[ANT] Comparing timestamps of: %c @ %lli, %lli @ %lli (explicit timestamp: %lli)",
         (char)(data->current_keycode_pressed.keycode + 61),
         data->current_keycode_pressed.timestamp,
         (data->last_keycode_pressed.keycode + 61),
@@ -92,7 +92,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         case 'N': tap_keys("ION"); break;
         case 'O': tap_key('A'); break;
         case 'P': tap_key('Y'); break;
-        case 'Q': tap_key("UEN"); break;
+        case 'Q': tap_keya("UEN"); break;
         case 'R': tap_key('L'); break;
         case 'S': tap_key('K'); break;
         case 'T': tap_keys("MENT"); break;
@@ -122,9 +122,9 @@ static int on_key_repeat_binding_released(struct zmk_behavior_binding *binding,
         return ZMK_BEHAVIOR_OPAQUE;
     }
 
-    data->current_keycode_pressed.timestamp = k_uptime_get()
+    data->current_keycode_pressed.timestamp = k_uptime_get();
     data->current_keycode_pressed.state = false;
-    LOG_DBG("[ANT] Raising %c release at %d", (char)(data->current_keycode_pressed.keycode + 61), data->current_keycode_pressed.timestamp);
+    LOG_DBG("[ANT] Raising %c release at %lli", (char)(data->current_keycode_pressed.keycode + 61), data->current_keycode_pressed.timestamp);
 
     ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
     return ZMK_BEHAVIOR_OPAQUE;
