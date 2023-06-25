@@ -122,10 +122,9 @@ static int on_key_repeat_binding_released(struct zmk_behavior_binding *binding,
         return ZMK_BEHAVIOR_OPAQUE;
     }
 
-    last_tap_timestamp = k_uptime_get();
-    data->current_keycode_pressed.timestamp = last_tap_timestamp;
+    data->current_keycode_pressed.timestamp = k_uptime_get()
     data->current_keycode_pressed.state = false;
-    LOG_DBG("[ANT] Raising %c release at %d", (char)(data->current_keycode_pressed.keycode + 61), last_tap_timestamp);
+    LOG_DBG("[ANT] Raising %c release at %d", (char)(data->current_keycode_pressed.keycode + 61), data->current_keycode_pressed.timestamp);
 
     ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
     return ZMK_BEHAVIOR_OPAQUE;
