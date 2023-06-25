@@ -92,7 +92,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         case 'N': tap_keys("ION"); break;
         case 'O': tap_key('A'); break;
         case 'P': tap_key('Y'); break;
-        case 'Q': tap_keya("UEN"); break;
+        case 'Q': tap_keys("UEN"); break;
         case 'R': tap_key('L'); break;
         case 'S': tap_key('K'); break;
         case 'T': tap_keys("MENT"); break;
