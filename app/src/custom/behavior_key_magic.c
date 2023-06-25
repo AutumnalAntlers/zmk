@@ -32,12 +32,12 @@ struct behavior_key_repeat_data {
     struct zmk_keycode_state_changed current_keycode_pressed;
 };
 
-int64_t last_tap_timestamp = 0;
 
 static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
                                          struct zmk_behavior_binding_event event) {
     const struct device *dev = device_get_binding(binding->behavior_dev);
     struct behavior_key_repeat_data *data = dev->data;
+    static int64_t last_tap_timestamp = 0;
 
     if (data->last_keycode_pressed.usage_page == 0) {
         return ZMK_BEHAVIOR_OPAQUE;
@@ -71,10 +71,10 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
       }
     }
 
-    LOG_DBG("[ANT] Comparing timestamps of: %c @ %d, %c @ %d (explicit last_tap_timestamp = %d)",
+    LOG_DBG("[ANT] Comparing timestamps of: %c @ %d, %d @ %d (explicit timestamp: %d)",
         (char)(data->current_keycode_pressed.keycode + 61),
         data->current_keycode_pressed.timestamp,
-        (char)(data->last_keycode_pressed.keycode + 61),
+        (data->last_keycode_pressed.keycode + 61),
         data->last_keycode_pressed.timestamp,
         last_tap_timestamp);
     if (data->last_keycode_pressed.timestamp == last_tap_timestamp) {
