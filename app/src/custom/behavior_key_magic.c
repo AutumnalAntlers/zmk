@@ -33,6 +33,7 @@ struct behavior_key_repeat_data {
 };
 
 int64_t last_tap_timestamp = 0;
+int64_t *last_tap_timestamp_p = &last_tap_timestamp;
 
 static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
                                          struct zmk_behavior_binding_event event) {
@@ -48,11 +49,11 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
 
     void tap_key (const char c) {
       // TODO: What's up with these timestamps?
-      last_tap_timestamp = k_uptime_get();
-      data->current_keycode_pressed.timestamp = last_tap_timestamp;
+      *last_tap_timestamp_p = k_uptime_get();
+      data->current_keycode_pressed.timestamp = *last_tap_timestamp_p;
       data->current_keycode_pressed.keycode = (uint32_t)((int)c - 61);
       data->current_keycode_pressed.state = true;
-      LOG_DBG("[ANT] Raising %c down-press at %d", c, last_tap_timestamp);
+      LOG_DBG("[ANT] Raising %c down-press at %d", c, *last_tap_timestamp_p);
       ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
     }
 
@@ -61,10 +62,10 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         tap_key(str[i]);
         k_sleep(K_USEC('30'));
         if (i != ( strlen(str) - 1 )); {
-          last_tap_timestamp = k_uptime_get();
-          data->current_keycode_pressed.timestamp = last_tap_timestamp;
+          *last_tap_timestamp_p = k_uptime_get();
+          data->current_keycode_pressed.timestamp = *last_tap_timestamp_p;
           data->current_keycode_pressed.state = false;
-          LOG_DBG("[ANT] Raising %c release at %d", (char)(data->current_keycode_pressed.keycode + 61), last_tap_timestamp);
+          LOG_DBG("[ANT] Raising %c release at %d", (char)(data->current_keycode_pressed.keycode + 61), *last_tap_timestamp_p);
           ZMK_EVENT_RAISE(new_zmk_keycode_state_changed(data->current_keycode_pressed));
           k_sleep(K_USEC('30'));
         }
