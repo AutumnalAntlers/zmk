@@ -82,6 +82,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
     } else {
       switch ((char)((int)data->current_keycode_pressed.keycode + 61)) {
         case 'A': tap_key('O'); break;
+        case 'B': tap_key('E'); break;
         case 'C': tap_key('Y'); break;
         case 'D': tap_key('Y'); break;
         case 'E': tap_key('U'); break;
