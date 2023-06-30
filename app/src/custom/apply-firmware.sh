@@ -2,7 +2,8 @@
 set -xeou pipefail
 
 ZIP="$1" && [[ -n "$ZIP" ]]
-BOOTLOADER_DEVICE="/dev/disk/by-id/usb-Adafruit_nRF_UF2_2CF56449277B2ACF-0:0"
+BOOTLOADER_DEVICE_LEFT="/dev/disk/by-id/usb-Adafruit_nRF_UF2_2CF56449277B2ACF-0:0"
+BOOTLOADER_DEVICE_RIGHT="/dev/disk/by-id/usb-Adafruit_nRF_UF2_946A216013472AAB-0:0"
 export ZIP
 
 cleanup () {
@@ -16,20 +17,27 @@ cleanup () {
 trap cleanup EXIT
 cleanup
 
-if [[ ! -b "$BOOTLOADER_DEVICE" ]]; then
-  echo  "Waiting for \"$BOOTLOADER_DEVICE\"..."
-  while [[ ! -b "$BOOTLOADER_DEVICE" ]]; do
-    sleep 5s
-  done
-fi
+while true; do
+  if [[ -b "$BOOTLOADER_DEVICE_LEFT" ]]; then
+    DEV="$BOOTLOADER_DEVICE_LEFT"
+    SIDE="left"
+    break
+  elif [[ -b "$BOOTLOADER_DEVICE_RIGHT" ]]; then
+    DEV="$BOOTLOADER_DEVICE_RIGHT"
+    SIDE="right"
+    break
+  fi
+  echo  "Waiting for keyboard..."
+  sleep 5s
+done
 
 mkdir -p /tmp/zmk/boot
 cd /tmp/zmk
 
-mount "$BOOTLOADER_DEVICE" boot
+mount "$DEV" boot
 
 unzip "$ZIP"
-cp ./*.uf2 boot
+cp ./*"$SIDE"*.uf2 boot
 umount boot
 
 cleanup
