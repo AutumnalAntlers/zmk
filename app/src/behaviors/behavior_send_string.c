@@ -10,7 +10,6 @@
 #include <drivers/character_map.h>
 #include <zephyr/device.h>
 #include <zephyr/devicetree.h>
-#include <zephyr/toolchain.h>
 #include <zmk/behavior.h>
 #include <zmk/send_string.h>
 
@@ -41,23 +40,12 @@ static const struct behavior_driver_api behavior_send_string_driver_api = {
 
 static int behavior_send_string_init(const struct device *dev) { return 0; }
 
-#define GET_CHARACTER_MAP(n)                                                                       \
-    DEVICE_DT_GET(DT_INST_PROP_OR(n, charmap, DT_CHOSEN(zmk_character_map)))
-
 #define SEND_STRING_INST(n)                                                                        \
-    BUILD_ASSERT(                                                                                  \
-        DT_INST_NODE_HAS_PROP(n, charmap) || DT_HAS_CHOSEN(zmk_character_map),                     \
-        "A character map must be chosen. See "                                                     \
-        "https://zmk.dev/docs/behaviors/send-string#character-maps for more information.");        \
+    ZMK_BUILD_ASSERT_CHARACTER_MAP_DT_INST_PROP(n)                                                 \
                                                                                                    \
     static const struct behavior_send_string_config behavior_send_string_config_##n = {            \
         .text = DT_INST_PROP(n, text),                                                             \
-        .config =                                                                                  \
-            {                                                                                      \
-                .character_map = GET_CHARACTER_MAP(n),                                             \
-                .wait_ms = DT_INST_PROP_OR(n, wait_ms, CONFIG_ZMK_SEND_STRING_DEFAULT_WAIT_MS),    \
-                .tap_ms = DT_INST_PROP_OR(n, tap_ms, CONFIG_ZMK_SEND_STRING_DEFAULT_TAP_MS),       \
-            },                                                                                     \
+        .config = ZMK_SEND_STRING_CONFIG_DT_INST_PROP(n),                                          \
     };                                                                                             \
     DEVICE_DT_INST_DEFINE(n, behavior_send_string_init, NULL, NULL,                                \
                           &behavior_send_string_config_##n, APPLICATION,                           \
