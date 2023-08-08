@@ -132,7 +132,7 @@ static int behavior_adaptive_init(const struct device *dev) {
     return 0;
 }
 
-#define TRANSFORMED_BEHAVIORS(n) PWM ## i                                                           \
+#define TRANSFORMED_BEHAVIORS(n) PWM ## n                                                           \
     {LISTIFY(DT_INST_PROP_LEN(n, bindings), ZMK_KEYMAP_EXTRACT_BINDING, (, ), n)},
 
 #define KR_INST(n)                                                                                  \
