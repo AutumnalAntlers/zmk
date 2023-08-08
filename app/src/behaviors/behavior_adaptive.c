@@ -23,6 +23,7 @@ struct behavior_adaptive_config {
     uint8_t index;
     uint8_t usage_pages_count;
     uint16_t usage_pages[];
+    struct zmk_behavior_binding bindings[];
 };
 
 struct behavior_adaptive_data {
