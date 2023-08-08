@@ -33,7 +33,7 @@ struct behavior_adaptive_data {
 
 #define ZM_IS_NODE_MATCH(a, b) (strcmp(a, b) == 0)
 
-#define WAIT_TIME DT_PROP(DT_INST(0, zmk_macro_control_wait_time), label)
+#define WAIT_TIME DT_PROP(DT_INST(0, zmk_adaptive_control_wait_time), label)
 
 #define IS_WAIT_TIME(dev) ZM_IS_NODE_MATCH(dev, WAIT_TIME)
 
