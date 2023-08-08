@@ -17,6 +17,6 @@
 #include <behaviors/outputs.dtsi>
 #include <behaviors/caps_word.dtsi>
 #include <behaviors/key_repeat.dtsi>
-#include <behaviors/adaptive.dtsi>
+#include <behaviors/adaptives.dtsi>
 #include <behaviors/backlight.dtsi>
 #include <behaviors/macros.dtsi>
