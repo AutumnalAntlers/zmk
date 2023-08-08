@@ -11,7 +11,7 @@
         /omit-if-no-ref/ adaptive: behavior_adaptive {
             compatible = "zmk,behavior-adaptive";
             label = "ADAPTIVE";
-            #binding-cells = <0>;
+            #binding-cells = <1>;
             usage-pages = <HID_USAGE_KEY>;
         };
     };
