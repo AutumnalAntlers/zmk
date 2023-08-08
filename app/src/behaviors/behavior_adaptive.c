@@ -28,7 +28,7 @@ struct behavior_adaptive_config {
 struct behavior_adaptive_data {
     struct zmk_keycode_state_changed last_keycode_pressed;
     struct zmk_keycode_state_changed current_keycode_pressed;
-    struct uint32_t wait_ms;
+    uint32_t wait_ms;
 };
 
 #define ZM_IS_NODE_MATCH(a, b) (strcmp(a, b) == 0)
