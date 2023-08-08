@@ -25,6 +25,12 @@ struct behavior_adaptive_config {
     uint16_t usage_pages[];
 };
 
+struct behavior_adaptive_data {
+    struct zmk_keycode_state_changed last_keycode_pressed;
+    struct zmk_keycode_state_changed current_keycode_pressed;
+    struct zmk_behavior_binding wait_ms;
+};
+
 #define ZM_IS_NODE_MATCH(a, b) (strcmp(a, b) == 0)
 
 #define WAIT_TIME DT_PROP(DT_INST(0, zmk_macro_control_wait_time), label)
@@ -42,12 +48,6 @@ static bool handle_control_binding(struct behavior_adaptive_data *state,
 
     return true;
 }
-
-struct behavior_adaptive_data {
-    struct zmk_keycode_state_changed last_keycode_pressed;
-    struct zmk_keycode_state_changed current_keycode_pressed;
-    struct zmk_behavior_binding wait_ms;
-};
 
 static int on_adaptive_binding_pressed(struct zmk_behavior_binding *binding,
                                          struct zmk_behavior_binding_event event) {
