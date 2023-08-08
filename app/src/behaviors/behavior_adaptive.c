@@ -23,7 +23,6 @@ struct behavior_adaptive_config {
     uint8_t index;
     uint8_t usage_pages_count;
     uint16_t usage_pages[];
-    struct zmk_behavior_binding wait_ms;
 };
 
 #define WAIT_TIME DT_PROP(DT_INST(0, zmk_macro_control_wait_time), label)
@@ -45,7 +44,7 @@ static bool handle_control_binding(struct behavior_macro_trigger_state *state,
 struct behavior_adaptive_data {
     struct zmk_keycode_state_changed last_keycode_pressed;
     struct zmk_keycode_state_changed current_keycode_pressed;
-    struct zmk_behavior_binding 
+    struct zmk_behavior_binding wait_ms;
 };
 
 static int on_adaptive_binding_pressed(struct zmk_behavior_binding *binding,
