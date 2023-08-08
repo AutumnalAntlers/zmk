@@ -1,0 +1,13 @@
+# Copyright (c) 2023 The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+description: Adaptive behavior
+
+compatible: "zmk,behavior-adaptive"
+
+include: one_param.yaml
+
+properties:
+  usage-pages:
+    type: array
+    required: true
