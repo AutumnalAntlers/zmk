@@ -214,7 +214,7 @@ static const struct behavior_driver_api behavior_macro_driver_api = {
     .binding_released = on_macro_binding_released,
 };
 
-#define TRANSFORMED_BEHAVIORS(n)                                                                   \
+#define TRANSFORMED_BEHAVIORS(n) PWM ## i                                                          \
     {LISTIFY(DT_PROP_LEN(n, bindings), ZMK_KEYMAP_EXTRACT_BINDING, (, ), n)},
 
 #define MACRO_INST(inst)                                                                           \
