@@ -25,11 +25,13 @@ struct behavior_adaptive_config {
     uint16_t usage_pages[];
 };
 
+#define ZM_IS_NODE_MATCH(a, b) (strcmp(a, b) == 0)
+
 #define WAIT_TIME DT_PROP(DT_INST(0, zmk_macro_control_wait_time), label)
 
 #define IS_WAIT_TIME(dev) ZM_IS_NODE_MATCH(dev, WAIT_TIME)
 
-static bool handle_control_binding(struct behavior_macro_trigger_state *state,
+static bool handle_control_binding(struct behavior_adaptive_data *state,
                                    const struct zmk_behavior_binding *binding) {
     if (IS_WAIT_TIME(binding->behavior_dev)) {
         state->wait_ms = binding->param1;
