@@ -132,7 +132,7 @@ static int behavior_adaptive_init(const struct device *dev) {
     return 0;
 }
 
-#define TRANSFORMED_BEHAVIORS(n) PWM ## n                                                           \
+#define TRANSFORMED_BEHAVIORS(n)                                                                    \
     {LISTIFY(DT_INST_PROP_LEN(n, bindings), ZMK_KEYMAP_EXTRACT_BINDING, (, ), n)},
 
 #define KR_INST(n)                                                                                  \
@@ -140,7 +140,7 @@ static int behavior_adaptive_init(const struct device *dev) {
     static struct behavior_adaptive_config behavior_adaptive_config_##n = {                         \
         .index = n,                                                                                 \
         .bindings_count = DT_INST_PROP_LEN(n, bindings),                                            \
-        .bindings_ptr = *TRANSFORMED_BEHAVIORS(n),                                                  \
+        .bindings_ptr = (*zmk_behavior_binding)(TRANSFORMED_BEHAVIORS(n)),                          \
         .usage_pages_count = DT_INST_PROP_LEN(n, usage_pages),                                      \
         .usage_pages = DT_INST_PROP(n, usage_pages),                                                \
     };                                                                                              \
