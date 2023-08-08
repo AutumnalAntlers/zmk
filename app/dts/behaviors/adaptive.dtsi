@@ -8,11 +8,10 @@
 
 / {
     behaviors {
-        /omit-if-no-ref/ adaptive: behavior_adaptive {
-            compatible = "zmk,behavior-adaptive";
-            label = "ADAPTIVE";
-            #binding-cells = <0>;
-            usage-pages = <HID_USAGE_KEY>;
+        adaptive_wait_time: adaptive_control_wait_time {
+            compatible = "zmk,adaptive-control-wait-time";
+            label = "ADPT_WAIT_TIME";
+            #binding-cells = <1>;
         };
     };
 };
