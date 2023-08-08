@@ -71,7 +71,6 @@ static const struct behavior_driver_api behavior_adaptive_driver_api = {
 };
 
 static int adaptive_keycode_state_changed_listener(const zmk_event_t *eh);
-static int adaptive_position_state_changed_listener(const zmk_event_t *eh);
 
 ZMK_LISTENER(behavior_adaptive, adaptive_keycode_state_changed_listener);
 ZMK_SUBSCRIPTION(behavior_adaptive, zmk_keycode_state_changed);
