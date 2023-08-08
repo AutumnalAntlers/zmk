@@ -133,7 +133,7 @@ static int behavior_adaptive_init(const struct device *dev) {
 }
 
 #define TRANSFORMED_BEHAVIORS(n)                                                                   \
-    {LISTIFY(DT_PROP_LEN(n, bindings), ZMK_KEYMAP_EXTRACT_BINDING, (, ), n)},
+    {LISTIFY(DT_INST_PROP_LEN(n, bindings), ZMK_KEYMAP_EXTRACT_BINDING, (, ), n)},
 
 #define KR_INST(n)                                                                                  \
     static struct behavior_adaptive_data behavior_adaptive_data_##n = {};                           \
