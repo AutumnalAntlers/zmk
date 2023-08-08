@@ -21,20 +21,38 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 struct behavior_adaptive_config {
     uint8_t index;
-    /* void *listeners; */
     uint8_t usage_pages_count;
     uint16_t usage_pages[];
+    struct zmk_behavior_binding wait_ms;
 };
+
+#define WAIT_TIME DT_PROP(DT_INST(0, zmk_macro_control_wait_time), label)
+
+#define IS_WAIT_TIME(dev) ZM_IS_NODE_MATCH(dev, WAIT_TIME)
+
+static bool handle_control_binding(struct behavior_macro_trigger_state *state,
+                                   const struct zmk_behavior_binding *binding) {
+    if (IS_WAIT_TIME(binding->behavior_dev)) {
+        state->wait_ms = binding->param1;
+        LOG_DBG("macro wait time set: %s %d %d", state->wait_ms->behavior_dev, state->wait_ms->param1, state->wait_ms->param2);
+    } else {
+        return false;
+    }
+
+    return true;
+}
 
 struct behavior_adaptive_data {
     struct zmk_keycode_state_changed last_keycode_pressed;
     struct zmk_keycode_state_changed current_keycode_pressed;
+    struct zmk_behavior_binding 
 };
 
 static int on_adaptive_binding_pressed(struct zmk_behavior_binding *binding,
                                          struct zmk_behavior_binding_event event) {
     const struct device *dev = device_get_binding(binding->behavior_dev);
     struct behavior_adaptive_data *data = dev->data;
+    const struct behavior_adaptive_config *cfg = dev->config;
 
     if (data->last_keycode_pressed.usage_page == 0) {
         return ZMK_BEHAVIOR_OPAQUE;
@@ -110,15 +128,20 @@ static int behavior_adaptive_init(const struct device *dev) {
     return 0;
 }
 
-#define KR_INST(n)                                                                                 \
-    static struct behavior_adaptive_data behavior_adaptive_data_##n = {};                      \
-    static struct behavior_adaptive_config behavior_adaptive_config_##n = {                    \
-        .index = n,                                                                                \
-        .usage_pages = DT_INST_PROP(n, usage_pages),                                               \
-        .usage_pages_count = DT_INST_PROP_LEN(n, usage_pages),                                     \
-    };                                                                                             \
-    DEVICE_DT_INST_DEFINE(n, behavior_adaptive_init, NULL, &behavior_adaptive_data_##n,        \
-                          &behavior_adaptive_config_##n, APPLICATION,                            \
+#define TRANSFORMED_BEHAVIORS(n)                                                                   \
+    {LISTIFY(DT_PROP_LEN(n, bindings), ZMK_KEYMAP_EXTRACT_BINDING, (, ), n)},
+
+#define KR_INST(n)                                                                                  \
+    static struct behavior_adaptive_data behavior_adaptive_data_##n = {};                           \
+    static struct behavior_adaptive_config behavior_adaptive_config_##n = {                         \
+        .index = n,                                                                                 \
+        .bindings = TRANSFORMED_BEHAVIORS(n),                                                       \
+        .bindings_count = DT_PROP_LEN(n, bindings),                                                 \
+        .usage_pages = DT_INST_PROP(n, usage_pages),                                                \
+        .usage_pages_count = DT_INST_PROP_LEN(n, usage_pages),                                      \
+    };                                                                                              \
+    DEVICE_DT_INST_DEFINE(n, behavior_adaptive_init, NULL, &behavior_adaptive_data_##n,             \
+                          &behavior_adaptive_config_##n, APPLICATION,                               \
                           CONFIG_KERNEL_INIT_PRIORITY_DEFAULT, &behavior_adaptive_driver_api);
 
 DT_INST_FOREACH_STATUS_OKAY(KR_INST)

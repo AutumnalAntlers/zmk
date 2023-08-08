@@ -8,6 +8,9 @@ compatible: "zmk,behavior-adaptive"
 include: zero_param.yaml
 
 properties:
+  bindings:
+    type: phandle-array
+    required: true
   usage-pages:
     type: array
     required: true
