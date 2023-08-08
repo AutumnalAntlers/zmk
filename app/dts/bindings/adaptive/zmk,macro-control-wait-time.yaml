@@ -1,0 +1,8 @@
+# Copyright (c) 202# The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+description: Still getting a feel for things
+
+compatible: "zmk,macro-control-wait-time"
+
+include: one_param.yaml
