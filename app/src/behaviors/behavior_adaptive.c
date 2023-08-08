@@ -28,7 +28,7 @@ struct behavior_adaptive_config {
 struct behavior_adaptive_data {
     struct zmk_keycode_state_changed last_keycode_pressed;
     struct zmk_keycode_state_changed current_keycode_pressed;
-    struct zmk_behavior_binding wait_ms;
+    struct uint32_t wait_ms;
 };
 
 #define ZM_IS_NODE_MATCH(a, b) (strcmp(a, b) == 0)
@@ -41,7 +41,8 @@ static bool handle_control_binding(struct behavior_adaptive_data *state,
                                    const struct zmk_behavior_binding *binding) {
     if (IS_WAIT_TIME(binding->behavior_dev)) {
         state->wait_ms = binding->param1;
-        LOG_DBG("macro wait time set: %s %d %d", state->wait_ms->behavior_dev, state->wait_ms->param1, state->wait_ms->param2);
+        // LOG_DBG("macro wait time set: %s %d %d", state->wait_ms->behavior_dev, state->wait_ms->param1, state->wait_ms->param2);
+        LOG_DBG("macro wait time set: %d", state->wait_ms);
     } else {
         return false;
     }
