@@ -5,7 +5,7 @@ description: Adaptive behavior
 
 compatible: "zmk,behavior-adaptive"
 
-include: one_param.yaml
+include: zero_param.yaml
 
 properties:
   usage-pages:
