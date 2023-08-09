@@ -99,7 +99,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         case 'D': tap_key('Y'); break;
         case 'E': tap_key('U'); break;
         case 'G': tap_key('Y'); break;
-        case 'I': tap_keys("ON"); break;
+        /* case 'I': tap_keys("ON"); break; */
         case 'I': zmk_send_string(&ZMK_SEND_STRING_CONFIG_DEFAULT, event.position, "ON"); break;
         case 'L': tap_key('K'); break;
         case 'M': tap_keys("ENT"); break;
