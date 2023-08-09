@@ -22,7 +22,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 struct behavior_adaptive_config {
     uint8_t index;
     uint8_t bindings_count;
-    struct zmk_behavior_binding (*bindings_ptr)[];
+    void (*bindings_ptr)[];
     uint8_t usage_pages_count;
     uint16_t usage_pages[];
 };
@@ -140,7 +140,7 @@ static int behavior_adaptive_init(const struct device *dev) {
     static struct behavior_adaptive_config behavior_adaptive_config_##n = {                         \
         .index = n,                                                                                 \
         .bindings_count = DT_INST_PROP_LEN(n, bindings),                                            \
-        .bindings_ptr = (void*)(TRANSFORMED_BEHAVIORS(n)),                                          \
+        .bindings_ptr = TRANSFORMED_BEHAVIORS(n),                                                   \
         .usage_pages_count = DT_INST_PROP_LEN(n, usage_pages),                                      \
         .usage_pages = DT_INST_PROP(n, usage_pages),                                                \
     };                                                                                              \
