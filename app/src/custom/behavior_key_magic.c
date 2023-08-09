@@ -45,6 +45,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
                                          struct zmk_behavior_binding_event event) {
     const struct device *dev = device_get_binding(binding->behavior_dev);
     struct behavior_key_repeat_data *data = dev->data;
+
     static int64_t last_tap_timestamp = 0;
     char string[32];
 
@@ -52,9 +53,8 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         return ZMK_BEHAVIOR_OPAQUE;
     }
 
-    snprintf(string, sizeof(string), "Battery level is %u%%", zmk_battery_state_of_charge());
-
-    zmk_send_string(&ZMK_SEND_STRING_CONFIG_DEFAULT, event.position, string);
+    /* snprintf(string, sizeof(string), "Battery level is %u%%", zmk_battery_state_of_charge()); */
+    /* zmk_send_string(&ZMK_SEND_STRING_CONFIG_DEFAULT, event.position, string); */
 
     memcpy(&data->current_keycode_pressed, &data->last_keycode_pressed,
            sizeof(struct zmk_keycode_state_changed));
@@ -101,6 +101,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         case 'E': tap_key('U'); break;
         case 'G': tap_key('Y'); break;
         case 'I': tap_keys("ON"); break;
+        case 'I': zmk_send_string(&ZMK_SEND_STRING_CONFIG_DEFAULT, event.position, "ON"); break;
         case 'L': tap_key('K'); break;
         case 'M': tap_keys("ENT"); break;
         case 'N': tap_keys("ION"); break;
