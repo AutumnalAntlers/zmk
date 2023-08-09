@@ -11,6 +11,7 @@
 #include <zephyr/logging/log.h>
 #include <zmk/behavior.h>
 #include <zmk/hid.h>
+#include <zmk/keymap.h>
 
 #include <zmk/event_manager.h>
 #include <zmk/events/keycode_state_changed.h>
