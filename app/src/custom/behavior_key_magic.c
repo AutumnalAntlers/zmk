@@ -16,7 +16,7 @@
 #include <zmk/send_string.h>
 #include <zmk/battery.h>
 
-#include <zmk/behaviors/send_string.h>
+#include <zmk/send_string.h>
 
 #include <zmk/event_manager.h>
 #include <zmk/events/keycode_state_changed.h>
