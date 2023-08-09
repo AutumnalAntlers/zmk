@@ -6,11 +6,17 @@
 
 #define DT_DRV_COMPAT zmk_behavior_key_repeat
 
-#include <zephyr/device.h>
 #include <drivers/behavior.h>
+#include <drivers/character_map.h>
+#include <zephyr/device.h>
+#include <zephyr/devicetree.h>
 #include <zephyr/logging/log.h>
 #include <zmk/behavior.h>
 #include <zmk/hid.h>
+#include <zmk/send_string.h>
+#include <zmk/battery.h>
+
+#include <zmk/behaviors/send_string.h>
 
 #include <zmk/event_manager.h>
 #include <zmk/events/keycode_state_changed.h>
@@ -20,6 +26,8 @@
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #if DT_HAS_COMPAT_STATUS_OKAY(DT_DRV_COMPAT)
+
+ZMK_BUILD_ASSERT_CHARACTER_MAP_CHOSEN();
 
 struct behavior_key_repeat_config {
     uint8_t index;
@@ -38,10 +46,15 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
     const struct device *dev = device_get_binding(binding->behavior_dev);
     struct behavior_key_repeat_data *data = dev->data;
     static int64_t last_tap_timestamp = 0;
+    char string[32];
 
     if (data->last_keycode_pressed.usage_page == 0) {
         return ZMK_BEHAVIOR_OPAQUE;
     }
+
+    snprintf(string, sizeof(string), "Battery level is %u%%", zmk_battery_state_of_charge());
+
+    zmk_send_string(&ZMK_SEND_STRING_CONFIG_DEFAULT, event.position, string);
 
     memcpy(&data->current_keycode_pressed, &data->last_keycode_pressed,
            sizeof(struct zmk_keycode_state_changed));
