@@ -14,7 +14,6 @@
 #include <zmk/behavior.h>
 #include <zmk/hid.h>
 #include <zmk/send_string.h>
-#include <zmk/battery.h>
 
 #include <zmk/send_string.h>
 
