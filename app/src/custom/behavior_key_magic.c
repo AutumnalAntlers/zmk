@@ -89,7 +89,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         case 'G': tap_key('Y'); break;
         case 'I': tap_keys("ON"); break;
         case 'L': tap_key('K'); break;
-        case 'M': tap_keys("MENT"); break;
+        case 'M': tap_keys("ENT"); break;
         case 'N': tap_keys("ION"); break;
         case 'O': tap_key('A'); break;
         case 'P': tap_key('Y'); break;
@@ -99,7 +99,8 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         case 'T': tap_keys("MENT"); break;
         case 'U': tap_key('E'); break;
         case 'Y': tap_key('P'); break;
-        // TODO: . -> o
+        // XXX: Is this . -> o ?
+        case 107: tap_key('O'); break;
         // XXX: Need to know ZMK keycodes for '\t' & '\n'
         case (44 + 61): tap_keys("THE"); break; // ' '
         // XXX: Need to know ZMK keycode for '/'
