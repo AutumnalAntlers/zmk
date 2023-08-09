@@ -140,7 +140,7 @@ static int behavior_adaptive_init(const struct device *dev) {
     static struct behavior_adaptive_config behavior_adaptive_config_##n = {                         \
         .index = n,                                                                                 \
         .bindings_count = DT_INST_PROP_LEN(n, bindings),                                            \
-        .bindings_ptr = (*zmk_behavior_binding)(TRANSFORMED_BEHAVIORS(n)),                          \
+        .bindings_ptr = (*void)(TRANSFORMED_BEHAVIORS(n)),                                          \
         .usage_pages_count = DT_INST_PROP_LEN(n, usage_pages),                                      \
         .usage_pages = DT_INST_PROP(n, usage_pages),                                                \
     };                                                                                              \
