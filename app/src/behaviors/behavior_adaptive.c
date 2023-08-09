@@ -22,7 +22,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 struct behavior_adaptive_config {
     uint8_t index;
     uint8_t bindings_count;
-    void (*bindings_ptr)[];
+    char (*bindings_ptr)[];
     uint8_t usage_pages_count;
     uint16_t usage_pages[];
 };
