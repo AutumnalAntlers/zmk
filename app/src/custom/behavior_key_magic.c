@@ -103,7 +103,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
         case 'I': zmk_send_string(&ZMK_SEND_STRING_CONFIG_DEFAULT, event.position, "ON"); break;
         case 'L': tap_key('K'); break;
         case 'M': tap_keys("ENT"); break;
-        case 'N': tap_keys("ION"); break;
+        case 'N': tap_keys("ion"); break;
         case 'O': tap_key('A'); break;
         case 'P': tap_key('Y'); break;
         case 'Q': tap_keys("UEN"); break;
