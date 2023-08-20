@@ -72,7 +72,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
       for (size_t i=0; i < strlen(str); i++) {
         tap_key(str[i]);
         k_sleep(K_MSEC(30));
-        if (i != ( strlen(str) - 1 )); {
+        if (i != ( strlen(str) - 1 )) {
           last_tap_timestamp = k_uptime_get();
           data->current_keycode_pressed.timestamp = last_tap_timestamp;
           data->current_keycode_pressed.state = false;
