@@ -15,6 +15,8 @@
 #include <zmk/event_manager.h>
 #include <zmk/events/keycode_state_changed.h>
 
+#include <zephyr/kernel.h>
+
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #if DT_HAS_COMPAT_STATUS_OKAY(DT_DRV_COMPAT)
@@ -34,6 +36,7 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
                                          struct zmk_behavior_binding_event event) {
     const struct device *dev = zmk_behavior_get_binding(binding->behavior_dev);
     struct behavior_key_repeat_data *data = dev->data;
+    static int64_t last_tap_timestamp = 0;
 
     if (data->last_keycode_pressed.usage_page == 0) {
         return ZMK_BEHAVIOR_OPAQUE;
@@ -41,9 +44,73 @@ static int on_key_repeat_binding_pressed(struct zmk_behavior_binding *binding,
 
     memcpy(&data->current_keycode_pressed, &data->last_keycode_pressed,
            sizeof(struct zmk_keycode_state_changed));
-    data->current_keycode_pressed.timestamp = k_uptime_get();
 
-    raise_zmk_keycode_state_changed(data->current_keycode_pressed);
+    void tap_key (const char c) {
+      // TODO: What's up with these timestamps?
+      last_tap_timestamp = k_uptime_get();
+      data->current_keycode_pressed.timestamp = last_tap_timestamp;
+      data->current_keycode_pressed.keycode = (uint32_t)((int)c - 61);
+      data->current_keycode_pressed.state = true;
+      LOG_DBG("[ANT] Raising %c down-press at %lli", c, last_tap_timestamp);
+      raise_zmk_keycode_state_changed(data->current_keycode_pressed);
+    }
+
+    void tap_keys (const char* str) {
+      for (size_t i=0; i < strlen(str); i++) {
+        tap_key(str[i]);
+        k_sleep(K_MSEC(30));
+        if (i != ( strlen(str) - 1 )); {
+          last_tap_timestamp = k_uptime_get();
+          data->current_keycode_pressed.timestamp = last_tap_timestamp;
+          data->current_keycode_pressed.state = false;
+          LOG_DBG("[ANT] Raising %c release at %lli", (char)(data->current_keycode_pressed.keycode + 61), last_tap_timestamp);
+          raise_zmk_keycode_state_changed(data->current_keycode_pressed);
+          k_sleep(K_MSEC(30));
+        }
+      }
+    }
+
+    LOG_DBG("[ANT] Comparing timestamps of: %c @ %lli, %lli @ %lli (explicit timestamp: %lli)",
+        (char)(data->current_keycode_pressed.keycode + 61),
+        data->current_keycode_pressed.timestamp,
+        (data->last_keycode_pressed.keycode + 61),
+        data->last_keycode_pressed.timestamp,
+        last_tap_timestamp);
+    if (data->last_keycode_pressed.timestamp == last_tap_timestamp) {
+      tap_key('N');
+    } else {
+      switch ((char)((int)data->current_keycode_pressed.keycode + 61)) {
+        case 'A': tap_key('O'); break;
+        case 'B': tap_key('E'); break;
+        case 'C': tap_key('Y'); break;
+        case 'D': tap_key('Y'); break;
+        case 'E': tap_key('U'); break;
+        case 'G': tap_key('Y'); break;
+        case 'I': tap_keys("ON"); break;
+        case 'L': tap_key('K'); break;
+        case 'M': tap_keys("ENT"); break;
+        case 'N': tap_keys("ION"); break;
+        case 'O': tap_key('A'); break;
+        case 'P': tap_key('Y'); break;
+        case 'Q': tap_keys("UEN"); break;
+        case 'R': tap_key('L'); break;
+        case 'S': tap_key('K'); break;
+        case 'T': tap_keys("MENT"); break;
+        case 'U': tap_key('E'); break;
+        case 'Y': tap_key('P'); break;
+        // XXX: Is this . -> o ?
+        case 107: tap_key('O'); break;
+        // XXX: Need to know ZMK keycodes for '\t' & '\n'
+        case (44 + 61): tap_keys("THE"); break; // ' '
+        // XXX: Need to know ZMK keycode for '/'
+        // case (55 + 61): tap_keys([(55 + 61), (), '\0']); break; // '.'
+        case (32 + 61): tap_keys("INCLUDE"); break; // '#'
+        default:
+          tap_key('N');
+          // data->current_keycode_pressed.timestamp = k_uptime_get();
+          // raise_zmk_keycode_state_changed(data->current_keycode_pressed);
+      }
+    }
 
     return ZMK_BEHAVIOR_OPAQUE;
 }
@@ -59,6 +126,7 @@ static int on_key_repeat_binding_released(struct zmk_behavior_binding *binding,
 
     data->current_keycode_pressed.timestamp = k_uptime_get();
     data->current_keycode_pressed.state = false;
+    LOG_DBG("[ANT] Raising %c release at %lli", (char)(data->current_keycode_pressed.keycode + 61), data->current_keycode_pressed.timestamp);
 
     raise_zmk_keycode_state_changed(data->current_keycode_pressed);
     return ZMK_BEHAVIOR_OPAQUE;
