@@ -29,6 +29,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 struct combo_cfg {
     int32_t key_positions[CONFIG_ZMK_COMBO_MAX_KEYS_PER_COMBO];
     int32_t key_position_len;
+    int32_t region[CONFIG_ZMK_COMBO_MAX_POSITIONS_PER_REGION];
+    int32_t region_len;
     struct zmk_behavior_binding behavior;
     int32_t timeout_ms;
     int32_t require_prior_idle_ms;
@@ -520,6 +522,8 @@ ZMK_SUBSCRIPTION(combo, zmk_keycode_state_changed);
         .require_prior_idle_ms = DT_PROP(n, require_prior_idle_ms),                                \
         .key_positions = DT_PROP(n, key_positions),                                                \
         .key_position_len = DT_PROP_LEN(n, key_positions),                                         \
+        .region = DT_PROP(n, region),                                                              \
+        .region_len = DT_PROP_LEN(n, region),                                                      \
         .behavior = ZMK_KEYMAP_EXTRACT_BINDING(0, n),                                              \
         .virtual_key_position = ZMK_VIRTUAL_KEY_POSITION_COMBO(__COUNTER__),                       \
         .slow_release = DT_PROP(n, slow_release),                                                  \
