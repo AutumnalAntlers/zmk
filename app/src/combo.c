@@ -236,7 +236,7 @@ static int setup_candidates_for_first_keypress(int32_t position, int64_t timesta
             candidates[*region_idx][number_of_combo_candidates].timeout_at = timestamp + combo->timeout_ms;
             number_of_combo_candidates++;
         }
-        // LOG_DBG("combo timeout %d %d %d", position, i, candidates[i].timeout_at);
+        LOG_DBG("combo timeout %d %d %d", position, i, candidates[*region_idx][i].timeout_at);
     }
     return number_of_combo_candidates;
 }
@@ -272,7 +272,7 @@ static int filter_candidates(int32_t position) {
     for (int i = matches; i < CONFIG_ZMK_COMBO_MAX_COMBOS_PER_KEY; i++) {
         candidates[*region_idx][i].combo = NULL;
     }
-    // LOG_DBG("combo matches after filter %d", matches);
+    LOG_DBG("combo matches after filter %d", matches);
     return matches;
 }
 
