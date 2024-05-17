@@ -110,6 +110,26 @@ static int initialize_combo(struct combo_cfg *new_combo) {
         struct combo_cfg *insert_combo = new_combo;
 
         int32_t **region = &region_lookup[position];
+
+        k_msleep(10);
+
+        LOG_HEXDUMP_DBG(
+            regions,
+            sizeof(int32_t) * CONFIG_ZMK_COMBO_MAX_POSITIONS_PER_REGION * CONFIG_ZMK_COMBO_MAX_REGIONS,
+            "global regions:"
+        );
+
+        if (region == NULL) {
+            LOG_DBG("region is NULL");
+        } else if (*region == NULL) {
+            LOG_DBG("region is %d", region);
+            LOG_DBG("*region is NULL");
+        } else {
+            LOG_DBG("region is %d", region);
+            LOG_DBG("*region is %d", *region);
+            LOG_HEXDUMP_DBG(*region, sizeof(int32_t) * CONFIG_ZMK_COMBO_MAX_POSITIONS_PER_REGION, "*region:");
+        }
+
         if (insert_combo->region[0] != -1) {
             if (*region == NULL) {
                 for (int j = 0; j < CONFIG_ZMK_COMBO_MAX_REGIONS; j++) {
