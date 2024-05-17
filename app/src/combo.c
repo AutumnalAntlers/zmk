@@ -141,7 +141,7 @@ static int initialize_combo(struct combo_cfg *new_combo) {
                 if (match) {
                     *region_idx = j;
                     break;
-                } else if (regions[j][0] == 0) {
+                } else if (regions[j][0] == -1) {
                     for (int k = 0; k < insert_combo->region_len; k++) {
                         regions[j][k] = insert_combo->region[k];
                     }
@@ -278,12 +278,14 @@ static int filter_candidates(int32_t position) {
 
 static int64_t first_candidate_timeout() {
     int64_t first_timeout = LONG_MAX;
-    for (int i = 0; i < CONFIG_ZMK_COMBO_MAX_COMBOS_PER_KEY; i++) {
-        if (candidates[i].combo == NULL) {
-            break;
-        }
-        if (candidates[i].timeout_at < first_timeout) {
-            first_timeout = candidates[i].timeout_at;
+    for (int region_idx = 0; region_idx < CONFIG_ZMK_COMBO_MAX_REGIONS; region_idx++) {
+        for (int i = 0; i < CONFIG_ZMK_COMBO_MAX_COMBOS_PER_KEY; i++) {
+            if (candidates[region_idx][i].combo == NULL) {
+                break;
+            }
+            if (candidates[region_idx][i].timeout_at < first_timeout) {
+                first_timeout = candidates[region_idx][i].timeout_at;
+            }
         }
     }
     return first_timeout;
@@ -302,25 +304,28 @@ static int cleanup();
 
 static int filter_timed_out_candidates(int64_t timestamp) {
     int remaining_candidates = 0;
-    for (int i = 0; i < CONFIG_ZMK_COMBO_MAX_COMBOS_PER_KEY; i++) {
-        struct combo_candidate *candidate = &candidates[i];
-        if (candidate->combo == NULL) {
-            break;
-        }
-        if (candidate->timeout_at > timestamp) {
-            bool need_to_bubble_up = remaining_candidates != i;
-            if (need_to_bubble_up) {
-                // bubble up => reorder candidates so they're contiguous
-                candidates[remaining_candidates].combo = candidate->combo;
-                candidates[remaining_candidates].timeout_at = candidate->timeout_at;
-                // clear the previous location
-                candidates[i].combo = NULL;
-                candidates[i].timeout_at = 0;
-            }
 
-            remaining_candidates++;
-        } else {
-            candidate->combo = NULL;
+    for (int region_idx = 0; region_idx < CONFIG_ZMK_COMBO_MAX_REGIONS; region_idx++) {
+        for (int i = 0; i < CONFIG_ZMK_COMBO_MAX_COMBOS_PER_KEY; i++) {
+            struct combo_candidate *candidate = &candidates[region_idx][i];
+            if (candidate->combo == NULL) {
+                break;
+            }
+            if (candidate->timeout_at > timestamp) {
+                bool need_to_bubble_up = remaining_candidates != i;
+                if (need_to_bubble_up) {
+                    // bubble up => reorder candidates so they're contiguous
+                    candidates[region_idx][remaining_candidates].combo = candidate->combo;
+                    candidates[region_idx][remaining_candidates].timeout_at = candidate->timeout_at;
+                    // clear the previous location
+                    candidates[region_idx][i].combo = NULL;
+                    candidates[region_idx][i].timeout_at = 0;
+                }
+
+                remaining_candidates++;
+            } else {
+                candidate->combo = NULL;
+            }
         }
     }
 
@@ -332,11 +337,13 @@ static int filter_timed_out_candidates(int64_t timestamp) {
 }
 
 static int clear_candidates() {
-    for (int i = 0; i < CONFIG_ZMK_COMBO_MAX_COMBOS_PER_KEY; i++) {
-        if (candidates[i].combo == NULL) {
-            return i;
+    for (int region_idx = 0; region_idx < CONFIG_ZMK_COMBO_MAX_REGIONS; region_idx++) {
+        for (int i = 0; i < CONFIG_ZMK_COMBO_MAX_COMBOS_PER_KEY; i++) {
+            if (candidates[region_idx][i].combo == NULL) {
+                return i;
+            }
+            candidates[region_idx][i].combo = NULL;
         }
-        candidates[i].combo = NULL;
     }
     return CONFIG_ZMK_COMBO_MAX_COMBOS_PER_KEY;
 }
@@ -511,8 +518,8 @@ int find_index(int *array, size_t size, int target)
 
 static int position_state_down(const zmk_event_t *ev, struct zmk_position_state_changed *data) {
     int num_candidates;
-    int32_t **region = &region_lookup[position];
-    int region_idx = find_index(regions, sizeof(*void), *region);
+    int32_t **region = &region_lookup[data->position];
+    int region_idx = find_index(regions, sizeof(void*), *region);
     if (candidates[region_idx][0].combo == NULL) {
         num_candidates = setup_candidates_for_first_keypress(data->position, data->timestamp);
         if (num_candidates == 0) {
