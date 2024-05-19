@@ -80,8 +80,8 @@ int32_t region_lookup[ZMK_KEYMAP_LEN] = { [0 ... ZMK_KEYMAP_LEN - 1] = -1};
 
 // combos that have been activated and still have (some) keys pressed
 // this array is always contiguous from 0.
-struct active_combo active_combos[CONFIG_ZMK_COMBO_MAX_PRESSED_COMBOS] = {NULL};
-int active_combo_count = 0;
+struct active_combo active_combos[CONFIG_ZMK_COMBO_MAX_REGIONS][CONFIG_ZMK_COMBO_MAX_PRESSED_COMBOS] = {NULL};
+int active_combo_count[CONFIG_ZMK_COMBO_MAX_REGIONS] = {0};
 
 struct k_work_delayable timeout_task;
 int64_t timeout_task_timeout_at;
@@ -413,12 +413,12 @@ static void move_pressed_keys_to_active_combo(struct active_combo *active_combo,
     pressed_keys_count[region_idx] -= combo_length;
 }
 
-static struct active_combo *store_active_combo(struct combo_cfg *combo) {
+static struct active_combo *store_active_combo(struct combo_cfg *combo, int32_t region_idx) {
     for (int i = 0; i < CONFIG_ZMK_COMBO_MAX_PRESSED_COMBOS; i++) {
-        if (active_combos[i].combo == NULL) {
-            active_combos[i].combo = combo;
-            active_combo_count++;
-            return &active_combos[i];
+        if (active_combos[region_idx][i].combo == NULL) {
+            active_combos[region_idx][i].combo = combo;
+            active_combo_count[region_idx]++;
+            return &active_combos[region_idx][i];
         }
     }
     LOG_ERR("Unable to store combo; already %d active. Increase "
@@ -428,7 +428,7 @@ static struct active_combo *store_active_combo(struct combo_cfg *combo) {
 }
 
 static void activate_combo(struct combo_cfg *combo, int32_t region_idx) {
-    struct active_combo *active_combo = store_active_combo(combo);
+    struct active_combo *active_combo = store_active_combo(combo, region_idx);
     if (active_combo == NULL) {
         // unable to store combo
         release_pressed_keys(region_idx);
@@ -438,20 +438,20 @@ static void activate_combo(struct combo_cfg *combo, int32_t region_idx) {
     press_combo_behavior(combo, active_combo->key_positions_pressed[0].data.timestamp);
 }
 
-static void deactivate_combo(int active_combo_index) {
-    active_combo_count--;
-    if (active_combo_index != active_combo_count) {
-        memcpy(&active_combos[active_combo_index], &active_combos[active_combo_count],
+static void deactivate_combo(int active_combo_index, int32_t region_idx) {
+    active_combo_count[region_idx]--;
+    if (active_combo_index != active_combo_count[region_idx]) {
+        memcpy(&active_combos[region_idx][active_combo_index], &active_combos[active_combo_count[region_idx]],
                sizeof(struct active_combo));
     }
-    active_combos[active_combo_count].combo = NULL;
-    active_combos[active_combo_count] = (struct active_combo){0};
+    active_combos[region_idx][active_combo_count[region_idx]].combo = NULL;
+    active_combos[region_idx][active_combo_count[region_idx]] = (struct active_combo){0};
 }
 
 /* returns true if a key was released. */
-static bool release_combo_key(int32_t position, int64_t timestamp) {
-    for (int combo_idx = 0; combo_idx < active_combo_count; combo_idx++) {
-        struct active_combo *active_combo = &active_combos[combo_idx];
+static bool release_combo_key(int32_t position, int64_t timestamp, int32_t region_idx) {
+    for (int combo_idx = 0; combo_idx < active_combo_count[region_idx]; combo_idx++) {
+        struct active_combo *active_combo = &active_combos[region_idx][combo_idx];
 
         bool key_released = false;
         bool all_keys_pressed =
@@ -475,7 +475,7 @@ static bool release_combo_key(int32_t position, int64_t timestamp) {
                 release_combo_behavior(active_combo->combo, timestamp);
             }
             if (all_keys_released) {
-                deactivate_combo(combo_idx);
+                deactivate_combo(combo_idx, region_idx);
             }
             return true;
         }
@@ -583,7 +583,7 @@ static int position_state_up(const zmk_event_t *ev, struct zmk_position_state_ch
     int32_t region = region_lookup[data->position];
     int region_idx = find_index(regions, sizeof(void*), region);
     int released_keys = cleanup(region_idx);
-    if (release_combo_key(data->position, data->timestamp)) {
+    if (release_combo_key(data->position, data->timestamp, region_idx)) {
         return ZMK_EV_EVENT_HANDLED;
     }
     if (released_keys > 1) {
