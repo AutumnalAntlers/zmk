@@ -15,6 +15,9 @@ child-binding:
     key-positions:
       type: array
       required: true
+    region:
+      type: array
+      default: [-1]
     timeout-ms:
       type: int
       default: 50
