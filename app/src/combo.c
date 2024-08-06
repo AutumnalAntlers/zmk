@@ -86,16 +86,14 @@ int active_combo_count[CONFIG_ZMK_COMBO_MAX_REGIONS] = {0};
 struct k_work_delayable timeout_task;
 int64_t timeout_task_timeout_at;
 
-// TODO: These 3 should be per-region.
-
 // this keeps track of the last non-combo, non-mod key tap
-int64_t last_tapped_timestamp = INT32_MIN;
+int64_t last_tapped_timestamp[CONFIG_ZMK_COMBO_MAX_REGIONS] = {[0 ... CONFIG_ZMK_COMBO_MAX_REGIONS - 1] = INT32_MIN};
 // this keeps track of the last time a combo was pressed
-int64_t last_combo_timestamp = INT32_MIN;
+int64_t last_combo_timestamp[CONFIG_ZMK_COMBO_MAX_REGIONS] = {[0 ... CONFIG_ZMK_COMBO_MAX_REGIONS - 1] = INT32_MIN};
 
-static void store_last_tapped(int64_t timestamp) {
-    if (timestamp > last_combo_timestamp) {
-        last_tapped_timestamp = timestamp;
+static void store_last_tapped(int64_t timestamp, int32_t region_idx) {
+    if (timestamp > last_combo_timestamp[region_idx]) {
+        last_tapped_timestamp[region_idx] = timestamp;
     }
 }
 
@@ -203,8 +201,8 @@ static bool combo_active_on_layer(struct combo_cfg *combo, uint8_t layer) {
     return false;
 }
 
-static bool is_quick_tap(struct combo_cfg *combo, int64_t timestamp) {
-    return (last_tapped_timestamp + combo->require_prior_idle_ms) > timestamp;
+static bool is_quick_tap(struct combo_cfg *combo, int64_t timestamp, int32_t region_idx) {
+    return (last_tapped_timestamp[region_idx] + combo->require_prior_idle_ms) > timestamp;
 }
 
 static int setup_candidates_for_first_keypress(int32_t position, int64_t timestamp) {
@@ -233,7 +231,7 @@ static int setup_candidates_for_first_keypress(int32_t position, int64_t timesta
         if (combo == NULL) {
             return number_of_combo_candidates;
         }
-        if (combo_active_on_layer(combo, highest_active_layer) && !is_quick_tap(combo, timestamp)) {
+        if (combo_active_on_layer(combo, highest_active_layer) && !is_quick_tap(combo, timestamp, region_idx)) {
             candidates[region_idx][number_of_combo_candidates].combo = combo;
             candidates[region_idx][number_of_combo_candidates].timeout_at = timestamp + combo->timeout_ms;
             number_of_combo_candidates++;
@@ -278,7 +276,6 @@ static int filter_candidates(int32_t position) {
     return matches;
 }
 
-// TODO: sus
 static int64_t first_candidate_timeout() {
     int64_t first_timeout = LONG_MAX;
     for (int region_idx = 0; region_idx < CONFIG_ZMK_COMBO_MAX_REGIONS; region_idx++) {
@@ -387,8 +384,6 @@ static inline int press_combo_behavior(struct combo_cfg *combo, int32_t timestam
         .timestamp = timestamp,
     };
 
-    last_combo_timestamp = timestamp;
-
     return behavior_keymap_binding_pressed(&combo->behavior, event);
 }
 
@@ -439,6 +434,7 @@ static void activate_combo(struct combo_cfg *combo, int32_t region_idx) {
         return;
     }
     move_pressed_keys_to_active_combo(active_combo, region_idx);
+    last_combo_timestamp[region_idx] = timestamp;
     press_combo_behavior(combo, active_combo->key_positions_pressed[0].data.timestamp);
 }
 
@@ -626,8 +622,9 @@ static int position_state_changed_listener(const zmk_event_t *ev) {
 
 static int keycode_state_changed_listener(const zmk_event_t *eh) {
     struct zmk_keycode_state_changed *ev = as_zmk_keycode_state_changed(eh);
+    int32_t region_idx = region_lookup[eh->data.position];
     if (ev->state && !is_mod(ev->usage_page, ev->keycode)) {
-        store_last_tapped(ev->timestamp);
+        store_last_tapped(ev->timestamp, region_idx);
     }
     return ZMK_EV_EVENT_BUBBLE;
 }
