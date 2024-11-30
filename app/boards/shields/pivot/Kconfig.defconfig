@@ -1,0 +1,19 @@
+# Copyright (c) 2020 The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+if SHIELD_PIVOT_RIGHT
+
+config ZMK_KEYBOARD_NAME
+	default "PIVOT"
+
+config ZMK_SPLIT_BLE_ROLE_CENTRAL
+	default y
+
+endif
+
+if SHIELD_PIVOT_RIGHT || SHIELD_PIVOT_LEFT 
+
+config ZMK_SPLIT
+	default y
+
+endif
