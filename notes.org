@@ -1,0 +1,5 @@
+Build command:
+
+#+begin_src
+west build -p -b seeeduino_xiao_ble -d boards/pivot/right -- -DSHIELD=pivot_right
+#+end
